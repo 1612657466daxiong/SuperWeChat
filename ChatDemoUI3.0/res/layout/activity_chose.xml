@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="cn.ucai.superwechat.ui.ChoseActivity"
-    android:background="@color/black_deep"
+    android:background="@color/colorPrimary"
     android:orientation="vertical"
     >
     <RelativeLayout
@@ -12,21 +12,13 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         >
-        <ImageButton
+        <ImageView
             android:id="@+id/chose_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/icon_logo"
             android:layout_centerInParent="true"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="WeChat"
-            android:textColor="@color/background_white"
-            android:textSize="15sp"
-            android:layout_below="@id/chose_icon"
-            android:layout_centerHorizontal="true"
-            />
+
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
@@ -39,14 +31,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/icon_btn_register"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:onClick="onclick"/>
         <Button
+            android:id="@+id/chose_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/icon_btn_login"
             android:layout_above="@id/chose_sign_up"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="5dp"
+            android:onClick="onclick"
             />
     </RelativeLayout>
 

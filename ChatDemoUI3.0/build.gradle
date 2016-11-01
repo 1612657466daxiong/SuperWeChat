@@ -65,10 +65,15 @@ android {
 dependencies {
     compile project(':redpacketlibrary')
     compile project(':EaseUI')
-    compile fileTree(dir: 'libs', include: '*.jar', exclude: 'android-support-multidex.jar')
+    compile fileTree(include: '*.jar', exclude: 'android-support-multidex.jar', dir: 'libs')
     //考虑到在eclipse中,直接使用源码
-//    compile ('com.anthonycr.grant:permissions:1.0'){
-//        exclude module: 'support-v4'
-//    }
+    //    compile ('com.anthonycr.grant:permissions:1.0'){
+    //        exclude module: 'support-v4'
+    //    }
     compile 'com.android.support:appcompat-v7:23.3.0'
+    compile files('libs/gson-2.7.jar')
+    compile files('libs/okhttp-3.2.0.jar')
+    compile files('libs/okio-1.9.0.jar')
+    compile 'com.jakewharton:butterknife:5.1.1'
+    compile 'com.google.code.gson:gson:2.8.0'
 }

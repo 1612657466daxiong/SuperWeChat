@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 
-import cn.ucai.superwechat.DemoModel;
+import cn.ucai.superwechat.SuperWeChatModel;
 import cn.ucai.superwechat.R;
 import com.hyphenate.easeui.widget.EaseTitleBar;
 
@@ -15,7 +15,7 @@ public class SetServersActivity extends BaseActivity {
     EditText imEdit;
     EaseTitleBar titleBar;
 
-    DemoModel demoModel;
+    SuperWeChatModel demoModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +26,7 @@ public class SetServersActivity extends BaseActivity {
         imEdit = (EditText) findViewById(R.id.et_im);
         titleBar = (EaseTitleBar) findViewById(R.id.title_bar);
 
-        demoModel = new DemoModel(this);
+        demoModel = new SuperWeChatModel(this);
         if(demoModel.getRestServer() != null)
             restEdit.setText(demoModel.getRestServer());
         if(demoModel.getIMServer() != null)

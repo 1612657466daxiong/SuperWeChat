@@ -24,7 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hyphenate.chat.EMClient;
-import cn.ucai.superwechat.DemoHelper;
+import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.R;
 import com.hyphenate.easeui.widget.EaseAlertDialog;
 
@@ -87,7 +87,7 @@ public class AddContactActivity extends BaseActivity{
 			return;
 		}
 		
-		if(DemoHelper.getInstance().getContactList().containsKey(nameText.getText().toString())){
+		if(SuperWeChatHelper.getInstance().getContactList().containsKey(nameText.getText().toString())){
 		    //let the user know the contact already in your contact list
 		    if(EMClient.getInstance().contactManager().getBlackListUsernames().contains(nameText.getText().toString())){
 		        new EaseAlertDialog(this, R.string.user_already_in_contactlist).show();

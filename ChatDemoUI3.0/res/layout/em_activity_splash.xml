@@ -3,22 +3,15 @@
     android:id="@+id/splash_root"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/black_deep" >
+    android:background="@color/colorPrimary" >
 
     <ImageView
         android:id="@+id/iv_splash_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:src="@mipmap/ic_launcher" />
-    <TextView
-        android:layout_below="@id/iv_splash_logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="WeChat"
-        android:textColor="@color/background_white"
-        android:textSize="20sp"/>
+        android:src="@drawable/icon_logo" />
+
     <TextView
         android:id="@+id/tv_version"
         android:layout_width="wrap_content"

@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
-import cn.ucai.superwechat.DemoHelper;
+import cn.ucai.superwechat.SuperWeChatHelper;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.util.EMLog;
@@ -160,7 +160,7 @@ public class ParseManager {
 					String nick = pUser.getString(CONFIG_NICK);
 					ParseFile pFile = pUser.getParseFile(CONFIG_AVATAR);
 					if(callback!=null){
-					    EaseUser user = DemoHelper.getInstance().getContactList().get(username);
+					    EaseUser user = SuperWeChatHelper.getInstance().getContactList().get(username);
 						if(user!=null){
 							user.setNick(nick);
 							if (pFile != null && pFile.getUrl() != null) {
