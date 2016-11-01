@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.hyphenate.chatuidemo.ui.ChoseActivity"
+    tools:context="cn.ucai.superwechat.ui.ChoseActivity"
     android:background="@color/black_deep"
     android:orientation="vertical"
     >

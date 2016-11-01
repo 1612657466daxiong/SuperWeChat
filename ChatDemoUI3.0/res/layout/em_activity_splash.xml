@@ -19,7 +19,16 @@
         android:text="WeChat"
         android:textColor="@color/background_white"
         android:textSize="20sp"/>
-
+    <TextView
+        android:id="@+id/tv_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:text="2.1.7"
+        android:textColor="#fff"
+        android:textSize="20sp"
+        tools:ignore="HardcodedText">
+    </TextView>
 
 
 </RelativeLayout>
