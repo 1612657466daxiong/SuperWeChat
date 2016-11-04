@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.ui.LoginActivity;
+import cn.ucai.superwechat.ui.MainActivity;
 import cn.ucai.superwechat.ui.RegisterActivity;
 
 /**
@@ -22,6 +23,10 @@ public class MFGT {
 
     public static void gotoRegisterActivity(Activity context){
         Intent intent = new Intent(context, RegisterActivity.class);
+        startActivity(context,intent);
+    }
+    public static void gotMainActivity(Activity context){
+        Intent intent=new Intent(context, MainActivity.class);
         startActivity(context,intent);
     }
 }

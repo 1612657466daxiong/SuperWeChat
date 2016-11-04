@@ -17,6 +17,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,11 +29,14 @@ import com.hyphenate.exceptions.HyphenateException;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.net.NetDao;
+import cn.ucai.superwechat.utils.I;
 import cn.ucai.superwechat.utils.L;
+import cn.ucai.superwechat.utils.MFGT;
 import cn.ucai.superwechat.utils.OkHttpUtils;
 
 /**
@@ -40,7 +44,7 @@ import cn.ucai.superwechat.utils.OkHttpUtils;
  *
  */
 public class RegisterActivity extends BaseActivity {
-    @InjectView(R.id.username)
+    @InjectView(R.id.register_username)
     EditText userNameEditText;
     @InjectView(R.id.usernick)
     EditText usernickEditText;
@@ -62,27 +66,26 @@ public class RegisterActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.em_activity_register);
         ButterKnife.inject(this);
+        contex=this;
+    }
+    @OnClick(R.id.btn_gister)
+    public void register(View view) {
         username = userNameEditText.getText().toString().trim();
         pwd = passwordEditText.getText().toString().trim();
         confirm_pwd = confirmPwdEditText.getText().toString().trim();
         nick = usernickEditText.getText().toString().trim();
-        contex=this;
-    }
-
-    public void register(View view) {
-
-        if (TextUtils.isEmpty(username)) {
+        if (userNameEditText.getText().toString().trim()==null) {
             Toast.makeText(this, getResources().getString(R.string.User_name_cannot_be_empty), Toast.LENGTH_SHORT).show();
             userNameEditText.requestFocus();
             return;
-        }else if(TextUtils.isEmpty(nick)){
+        }else if(usernickEditText.getText().toString().trim()==null){
             Toast.makeText(this, "User nick cannot be empty!", Toast.LENGTH_SHORT).show();
         }
-        else if (TextUtils.isEmpty(pwd)) {
+        else if (passwordEditText.getText().toString().trim()==null) {
             Toast.makeText(this, getResources().getString(R.string.Password_cannot_be_empty), Toast.LENGTH_SHORT).show();
             passwordEditText.requestFocus();
             return;
-        } else if (TextUtils.isEmpty(confirm_pwd)) {
+        } else if (confirmPwdEditText.getText().toString().trim()==null) {
             Toast.makeText(this, getResources().getString(R.string.Confirm_password_cannot_be_empty), Toast.LENGTH_SHORT).show();
             confirmPwdEditText.requestFocus();
             return;
@@ -90,15 +93,12 @@ public class RegisterActivity extends BaseActivity {
             Toast.makeText(this, getResources().getString(R.string.Two_input_password), Toast.LENGTH_SHORT).show();
             return;
         }
-
-        if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(pwd)) {
-            pd = new ProgressDialog(this);
-            pd.setMessage(getResources().getString(R.string.Is_the_registered));
-            pd.show();
-            rigisterDao();
+        pd = new ProgressDialog(this);
+        pd.setMessage(getResources().getString(R.string.Is_the_registered));
+        pd.show();
+        rigisterDao();
 
 
-        }
     }
 
     private void rigisterDao() {
@@ -107,9 +107,11 @@ public class RegisterActivity extends BaseActivity {
             public void onSuccess(Result result) {
                 if (result!=null){
                     if (result.isRetMsg()){
-                        registerEM();
-                    }else {
-                        Toast.makeText(RegisterActivity.this, "注册失败", Toast.LENGTH_SHORT).show();
+                        Log.i("main",result.toString());
+                        Log.i("main",username);
+                        registerEM(username,pwd);
+                    }else if(result.getRetCode()== I.MSG_REGISTER_FAIL){
+                        Toast.makeText(RegisterActivity.this, R.string.MSG_102, Toast.LENGTH_SHORT).show();
                         pd.dismiss();
                     }
                 }
@@ -123,7 +125,7 @@ public class RegisterActivity extends BaseActivity {
         });
     }
 
-    public void registerEM(){
+    public void registerEM(final String username, final String pwd){
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -136,11 +138,12 @@ public class RegisterActivity extends BaseActivity {
                             // save current user
                             SuperWeChatHelper.getInstance().setCurrentUserName(username);
                             Toast.makeText(getApplicationContext(), getResources().getString(R.string.Registered_successfully), Toast.LENGTH_SHORT).show();
+                            MFGT.gotoLoginActivity(RegisterActivity.this);
                             finish();
                         }
                     });
                 } catch (final HyphenateException e) {
-                    unregister();
+
                     runOnUiThread(new Runnable() {
                         public void run() {
                              if (!RegisterActivity.this.isFinishing())
@@ -159,6 +162,7 @@ public class RegisterActivity extends BaseActivity {
                             }
                         }
                     });
+                    unregister();
                 }
 
             }
@@ -166,7 +170,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void unregister() {
-        NetDao.unregister(contex, username, new OkHttpUtils.OnCompleteListener<Result>() {
+        NetDao.unregister(contex, username, new OkHttpUtils.OnCompleteListener<Result>(){
             @Override
             public void onSuccess(Result result) {
                 if (result!=null){

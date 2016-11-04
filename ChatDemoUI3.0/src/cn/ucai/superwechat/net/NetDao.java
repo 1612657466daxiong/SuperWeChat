@@ -14,9 +14,10 @@ public class NetDao {
         OkHttpUtils<Result> utils = new OkHttpUtils<>(context);
         utils.url(I.SERVER_ROOT+I.REQUEST_REGISTER)
                 .addParam(I.User.USER_NAME,username)
-                .addParam(I.User.USER_NAME,usernick)
+                .addParam(I.User.NICK,usernick)
                 .addParam(I.User.PASSWORD,passwrod)
                 .targetClass(Result.class)
+                .post()
                 .execute(listener);
     }
 

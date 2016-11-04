@@ -55,7 +55,6 @@ public class LoginActivity extends BaseActivity {
 		if (SuperWeChatHelper.getInstance().isLoggedIn()) {
 			autoLogin = true;
 			startActivity(new Intent(LoginActivity.this, MainActivity.class));
-
 			return;
 		}
 		setContentView(R.layout.em_activity_login);
