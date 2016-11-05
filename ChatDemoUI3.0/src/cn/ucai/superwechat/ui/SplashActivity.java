@@ -53,7 +53,7 @@ public class SplashActivity extends BaseActivity {
 						}
 					}
 					//enter main screen
-					startActivity(new Intent(SplashActivity.this, ChoseActivity.class));
+					startActivity(new Intent(SplashActivity.this, MainActivity.class));
 					finish();
 				}else {
 					try {
