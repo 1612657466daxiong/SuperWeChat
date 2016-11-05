@@ -14,6 +14,7 @@
 package cn.ucai.superwechat.ui;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
@@ -38,7 +40,9 @@ import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatApplication;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.bean.Result;
+import cn.ucai.superwechat.bean.User;
 import cn.ucai.superwechat.db.SuperWeChatDBManager;
+import cn.ucai.superwechat.db.UserDao;
 import cn.ucai.superwechat.net.NetDao;
 import cn.ucai.superwechat.utils.MD5;
 import cn.ucai.superwechat.utils.OkHttpUtils;
@@ -63,6 +67,7 @@ public class LoginActivity extends BaseActivity {
     private boolean progressShow;
     private boolean autoLogin = false;
     ProgressDialog pd;
+    Context mcontext;
 
 
     @Override
@@ -77,6 +82,7 @@ public class LoginActivity extends BaseActivity {
         }
         setContentView(R.layout.em_activity_login);
         ButterKnife.inject(this);
+        mcontext=this;
 
       //  usernameEditText = (EditText) findViewById(R.id.username);
        // passwordEditText = (EditText) findViewById(R.id.password);
@@ -186,13 +192,22 @@ public class LoginActivity extends BaseActivity {
             public void onSuccess(Result result) {
                 Log.i(TAG,"loginAppServer onSuccess");
                 if (result!=null){
+                    if (result.isRetMsg()){
+                        Gson gson = new Gson();
+                        User user = gson.fromJson(result.getRetData().toString(), User.class);
+                        UserDao dao = new UserDao(mcontext);
+                        dao.saveUser(user);
+                        SuperWeChatHelper.getInstance().setCurrentUser(user);
+                    }
                     loginsuccess();
+                }else {
+                    pd.dismiss();
                 }
             }
 
             @Override
             public void onError(String error) {
-
+                pd.dismiss();
             }
         });
 

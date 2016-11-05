@@ -26,6 +26,7 @@ import com.hyphenate.chat.EMMessage.Type;
 import com.hyphenate.chat.EMOptions;
 import com.hyphenate.chat.EMTextMessageBody;
 
+import cn.ucai.superwechat.bean.User;
 import cn.ucai.superwechat.db.SuperWeChatDBManager;
 import cn.ucai.superwechat.db.InviteMessgeDao;
 import cn.ucai.superwechat.db.UserDao;
@@ -81,6 +82,8 @@ public class SuperWeChatHelper {
      * EMEventListener
      */
     protected EMMessageListener messageListener = null;
+
+    private User currentUser = null;
 
 	private Map<String, EaseUser> contactList;
 
@@ -1240,4 +1243,16 @@ public class SuperWeChatHelper {
         easeUI.popActivity(activity);
     }
 
+    public User getCurrentUser() {
+        if (currentUser==null){
+            String username = EMClient.getInstance().getCurrentUser();
+            Log.i(TAG,"getCurrentUser,username"+username);
+            currentUser=new User();
+        }
+        return currentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
 }
