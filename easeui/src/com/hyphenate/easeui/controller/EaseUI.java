@@ -11,6 +11,7 @@ import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chat.EMOptions;
 import com.hyphenate.easeui.domain.EaseEmojicon;
 import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.model.EaseNotifier;
 
@@ -27,6 +28,8 @@ public final class EaseUI {
      * the global EaseUI instance
      */
     private static EaseUI instance = null;
+
+
     
     /**
      * user profile provider
@@ -246,6 +249,7 @@ public final class EaseUI {
          * @return
          */
         EaseUser getUser(String username);
+        User getAppUser(String username);
     }
     
     /**

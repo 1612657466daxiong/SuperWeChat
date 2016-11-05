@@ -1,9 +1,6 @@
-package cn.ucai.superwechat.bean;
-
-import com.hyphenate.easeui.utils.EaseCommonUtils;
+package com.hyphenate.easeui.domain;
 
 import java.io.Serializable;
-
 
 
 public class User implements Serializable {

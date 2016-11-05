@@ -18,9 +18,9 @@ import java.util.Map;
 
 import android.content.Context;
 
-import cn.ucai.superwechat.bean.User;
 import cn.ucai.superwechat.domain.RobotUser;
 import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.domain.User;
 
 public class UserDao {
 	public static final String USER_TABLE_NAME="t_superwechat_user";
