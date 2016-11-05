@@ -915,7 +915,7 @@ public class SuperWeChatHelper {
         return contactList;
     }
     public Map<String, User> getappContactList() {
-        if (isLoggedIn() && appContactList == null) {
+        if (isLoggedIn() && (appContactList == null || appContactList.size()==0)) {
             appContactList = demoModel.getAppContactList();
         }
 
@@ -1276,7 +1276,8 @@ public class SuperWeChatHelper {
         isBlackListSyncedWithServer = false;
 
         isGroupAndContactListenerRegisted = false;
-        
+
+        setAppContactList(null);
         setContactList(null);
         setRobotList(null);
         getUserProfileManager().reset();
