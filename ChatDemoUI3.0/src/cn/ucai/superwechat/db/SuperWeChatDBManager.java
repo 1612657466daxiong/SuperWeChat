@@ -56,6 +56,21 @@ public class SuperWeChatDBManager {
             }
         }
     }
+    synchronized public void saveAppContactList(List<User> contactList) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        if (db.isOpen()) {
+            db.delete(UserDao.TABLE_NAME, null, null);
+            for (User user : contactList) {
+                ContentValues values = new ContentValues();
+                values.put(UserDao.COLUMN_NAME_ID, user.getMUserName());
+                if(user.getMUserNick() != null)
+                    values.put(UserDao.COLUMN_NAME_NICK, user.getMUserNick());
+                if(user.getAvater() != null)
+                    values.put(UserDao.COLUMN_NAME_AVATAR, user.getAvater());
+                db.replace(UserDao.TABLE_NAME, null, values);
+            }
+        }
+    }
 
     /**
      * get contact list
@@ -86,7 +101,29 @@ public class SuperWeChatDBManager {
         }
         return users;
     }
-    
+
+    synchronized public Map<String, User> getAppContactList() {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Map<String, User> users = new Hashtable<String, User>();
+        if (db.isOpen()) {
+            Cursor cursor = db.rawQuery("select * from " + UserDao.TABLE_NAME /* + " desc" */, null);
+            while (cursor.moveToNext()) {
+                String username = cursor.getString(cursor.getColumnIndex(UserDao.COLUMN_NAME_ID));
+                String nick = cursor.getString(cursor.getColumnIndex(UserDao.COLUMN_NAME_NICK));
+                String avatar = cursor.getString(cursor.getColumnIndex(UserDao.COLUMN_NAME_AVATAR));
+                User user = new User(username);
+                user.setMUserNick(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_NICK)));
+                user.setMAvatarId(cursor.getInt(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_ID)));
+                user.setMAvatarType(cursor.getInt(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_TYPE)));
+                user.setMAvatarPath(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_PATH)));
+                user.setMAvatarSuffix(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_SUFFIX)));
+                user.setMAvatarLastUpdateTime(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_LASTUPDATE_TIME)));
+                users.put(username, user);
+            }
+            cursor.close();
+        }
+        return users;
+    }
     /**
      * delete a contact
      * @param username
@@ -95,6 +132,24 @@ public class SuperWeChatDBManager {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         if(db.isOpen()){
             db.delete(UserDao.TABLE_NAME, UserDao.COLUMN_NAME_ID + " = ?", new String[]{username});
+        }
+    }
+    synchronized public void deleteAppContact(String username){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        if(db.isOpen()){
+            db.delete(UserDao.TABLE_NAME, UserDao.COLUMN_NAME_ID + " = ?", new String[]{username});
+        }
+    }
+    synchronized public void saveAppContact(User user){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(UserDao.COLUMN_NAME_ID, user.getMUserName());
+        if(user.getMUserNick() != null)
+            values.put(UserDao.COLUMN_NAME_NICK, user.getMUserNick() );
+        if(user.getAvater() != null)
+            values.put(UserDao.COLUMN_NAME_AVATAR, user.getAvater());
+        if(db.isOpen()){
+            db.replace(UserDao.TABLE_NAME, null, values);
         }
     }
     
