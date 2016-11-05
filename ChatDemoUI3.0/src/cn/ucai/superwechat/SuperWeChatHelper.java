@@ -222,7 +222,7 @@ public class SuperWeChatHelper {
 
             @Override
             public User getAppUser(String username) {
-                return null;
+                return getAppUserInfo(username);
             }
         });
 
@@ -730,6 +730,17 @@ public class SuperWeChatHelper {
         }
         return user;
 	}
+    private User getAppUserInfo(String username){
+        // To get instance of EaseUser, here we get it from the user list in memory
+        // You'd better cache it if you get it from your server
+        User user = null;
+        user = getappContactList().get(username);
+        if (user==null){
+            user= new User(username);
+            EaseCommonUtils.setAppUserInitialLetter(user);
+        }
+        return user;
+    }
 	
 	 /**
      * Global listener
@@ -855,7 +866,7 @@ public class SuperWeChatHelper {
 	/**
 	 * update contact list
 	 * 
-	 * @param contactList
+	 * @param aContactList
 	 */
 	public void setContactList(Map<String, EaseUser> aContactList) {
 		if(aContactList == null){
@@ -957,7 +968,7 @@ public class SuperWeChatHelper {
 	 /**
      * update user list to cache and database
      *
-     * @param contactList
+     * @param contactInfoList
      */
     public void updateContactList(List<EaseUser> contactInfoList) {
          for (EaseUser u : contactInfoList) {

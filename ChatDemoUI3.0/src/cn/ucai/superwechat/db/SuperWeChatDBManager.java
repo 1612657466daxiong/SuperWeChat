@@ -108,9 +108,7 @@ public class SuperWeChatDBManager {
         if (db.isOpen()) {
             Cursor cursor = db.rawQuery("select * from " + UserDao.TABLE_NAME /* + " desc" */, null);
             while (cursor.moveToNext()) {
-                String username = cursor.getString(cursor.getColumnIndex(UserDao.COLUMN_NAME_ID));
-                String nick = cursor.getString(cursor.getColumnIndex(UserDao.COLUMN_NAME_NICK));
-                String avatar = cursor.getString(cursor.getColumnIndex(UserDao.COLUMN_NAME_AVATAR));
+                String username = cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_NAME));
                 User user = new User(username);
                 user.setMUserNick(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_NICK)));
                 user.setMAvatarId(cursor.getInt(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_ID)));
@@ -118,6 +116,7 @@ public class SuperWeChatDBManager {
                 user.setMAvatarPath(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_PATH)));
                 user.setMAvatarSuffix(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_SUFFIX)));
                 user.setMAvatarLastUpdateTime(cursor.getString(cursor.getColumnIndex(UserDao.USER_COLUMN_AVATER_LASTUPDATE_TIME)));
+                EaseCommonUtils.setAppUserInitialLetter(user);
                 users.put(username, user);
             }
             cursor.close();
@@ -146,10 +145,18 @@ public class SuperWeChatDBManager {
         values.put(UserDao.COLUMN_NAME_ID, user.getMUserName());
         if(user.getMUserNick() != null)
             values.put(UserDao.COLUMN_NAME_NICK, user.getMUserNick() );
-        if(user.getAvater() != null)
-            values.put(UserDao.COLUMN_NAME_AVATAR, user.getAvater());
+        if(user.getMAvatarId()!= null)
+            values.put(UserDao.USER_COLUMN_AVATER_ID, user.getMAvatarId());
+        if(user.getMAvatarType() != null)
+            values.put(UserDao.USER_COLUMN_AVATER_TYPE, user.getMAvatarType() );
+        if(user.getMAvatarPath() != null)
+            values.put(UserDao.USER_COLUMN_AVATER_PATH, user.getMAvatarPath());
+        if(user.getMAvatarSuffix()!= null)
+            values.put(UserDao.USER_COLUMN_AVATER_SUFFIX, user.getMAvatarSuffix() );
+        if(user.getMAvatarLastUpdateTime()!= null)
+            values.put(UserDao.USER_COLUMN_AVATER_LASTUPDATE_TIME, user.getMAvatarLastUpdateTime());
         if(db.isOpen()){
-            db.replace(UserDao.TABLE_NAME, null, values);
+            db.replace(UserDao.USER_TABLE_NAME, null, values);
         }
     }
     

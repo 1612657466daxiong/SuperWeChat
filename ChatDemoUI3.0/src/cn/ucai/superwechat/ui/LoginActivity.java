@@ -255,4 +255,12 @@ public class LoginActivity extends BaseActivity {
             return;
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (pd!=null){
+            pd.dismiss();
+        }
+    }
 }
