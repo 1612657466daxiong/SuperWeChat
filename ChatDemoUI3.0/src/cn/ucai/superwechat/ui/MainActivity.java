@@ -62,16 +62,16 @@ import java.util.List;
 public class MainActivity extends BaseActivity {
 
 	protected static final String TAG = "MainActivity";
-	// textview for unread message count
-	private TextView unreadLabel;
-	// textview for unread event message
-	private TextView unreadAddressLable;
-
-	private Button[] mTabs;
-	private ContactListFragment contactListFragment;
-	private Fragment[] fragments;
-	private int index;
-	private int currentTabIndex;
+//	// textview for unread message count
+//	private TextView unreadLabel;
+//	// textview for unread event message
+//	private TextView unreadAddressLable;
+//
+//	private Button[] mTabs;
+//	private ContactListFragment contactListFragment;
+//	private Fragment[] fragments;
+//	private int index;
+//	private int currentTabIndex;
 	// user logged into another device
 	public boolean isConflict = false;
 	// user account was removed
@@ -89,55 +89,31 @@ public class MainActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-		    String packageName = getPackageName();
-		    PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-		    if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-		        Intent intent = new Intent();
-		        intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-		        intent.setData(Uri.parse("package:" + packageName));
-		        startActivity(intent);
-		    }
-		}
-		
-		//make sure activity will not in background if user is logged into another device or removed
-		if (savedInstanceState != null && savedInstanceState.getBoolean(Constant.ACCOUNT_REMOVED, false)) {
-		    SuperWeChatHelper.getInstance().logout(false,null);
-			finish();
-			startActivity(new Intent(this, LoginActivity.class));
-			return;
-		} else if (savedInstanceState != null && savedInstanceState.getBoolean("isConflict", false)) {
-			finish();
-			startActivity(new Intent(this, LoginActivity.class));
-			return;
-		}
+		savePower();
+		checklogined(savedInstanceState);
+
+
 		setContentView(R.layout.em_activity_main);
 		// runtime permission for android 6.0, just require all permissions here for simple
 		requestPermissions();
 
 		initView();
 
-		//umeng api
-		MobclickAgent.updateOnlineConfig(this);
-		UmengUpdateAgent.setUpdateOnlyWifi(false);
-		UmengUpdateAgent.update(this);
+		umeng();
+		
+		checkAccount();
 
-		if (getIntent().getBooleanExtra(Constant.ACCOUNT_CONFLICT, false) && !isConflictDialogShow) {
-			showConflictDialog();
-		} else if (getIntent().getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
-			showAccountRemovedDialog();
-		}
 
 		inviteMessgeDao = new InviteMessgeDao(this);
 		UserDao userDao = new UserDao(this);
-		conversationListFragment = new ConversationListFragment();
-		contactListFragment = new ContactListFragment();
-		SettingsFragment settingFragment = new SettingsFragment();
-		fragments = new Fragment[] { conversationListFragment, contactListFragment, settingFragment};
-
-		getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, conversationListFragment)
-				.add(R.id.fragment_container, contactListFragment).hide(contactListFragment).show(conversationListFragment)
-				.commit();
+//		conversationListFragment = new ConversationListFragment();
+//		contactListFragment = new ContactListFragment();
+//		SettingsFragment settingFragment = new SettingsFragment();
+//		fragments = new Fragment[] { conversationListFragment, contactListFragment, settingFragment};
+//
+//		getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, conversationListFragment)
+//				.add(R.id.fragment_container, contactListFragment).hide(contactListFragment).show(conversationListFragment)
+//				.commit();
 
 		//register broadcast receiver to receive the change of group from DemoHelper
 		registerBroadcastReceiver();
@@ -146,6 +122,49 @@ public class MainActivity extends BaseActivity {
 		EMClient.getInstance().contactManager().setContactListener(new MyContactListener());
 		//debug purpose only
         registerInternalDebugReceiver();
+	}
+
+	private void checkAccount() {
+		if (getIntent().getBooleanExtra(Constant.ACCOUNT_CONFLICT, false) && !isConflictDialogShow) {
+			showConflictDialog();
+		} else if (getIntent().getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
+			showAccountRemovedDialog();
+		}
+	}
+
+	private void umeng() {
+		//umeng api
+		MobclickAgent.updateOnlineConfig(this);
+		UmengUpdateAgent.setUpdateOnlyWifi(false);
+		UmengUpdateAgent.update(this);
+	}
+
+	private void checklogined(Bundle savedInstanceState) {
+		//make sure activity will not in background if user is logged into another device or removed
+		if (savedInstanceState != null && savedInstanceState.getBoolean(Constant.ACCOUNT_REMOVED, false)) {
+			SuperWeChatHelper.getInstance().logout(false,null);
+			finish();
+			startActivity(new Intent(this, LoginActivity.class));
+			return;
+		} else if (savedInstanceState != null && savedInstanceState.getBoolean("isConflict", false)) {
+			finish();
+			startActivity(new Intent(this, LoginActivity.class));
+			return;
+		}
+	}
+
+
+	private void savePower() {
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			String packageName = getPackageName();
+			PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+			if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+				Intent intent = new Intent();
+				intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+				intent.setData(Uri.parse("package:" + packageName));
+				startActivity(intent);
+			}
+		}
 	}
 
 	@TargetApi(23)
@@ -167,45 +186,14 @@ public class MainActivity extends BaseActivity {
 	 * init views
 	 */
 	private void initView() {
-		unreadLabel = (TextView) findViewById(R.id.unread_msg_number);
-		unreadAddressLable = (TextView) findViewById(R.id.unread_address_number);
-		mTabs = new Button[3];
-		mTabs[0] = (Button) findViewById(R.id.btn_conversation);
-		mTabs[1] = (Button) findViewById(R.id.btn_address_list);
-		mTabs[2] = (Button) findViewById(R.id.btn_setting);
-		// select first tab
-		mTabs[0].setSelected(true);
-	}
-
-	/**
-	 * on tab clicked
-	 * 
-	 * @param view
-	 */
-	public void onTabClicked(View view) {
-		switch (view.getId()) {
-		case R.id.btn_conversation:
-			index = 0;
-			break;
-		case R.id.btn_address_list:
-			index = 1;
-			break;
-		case R.id.btn_setting:
-			index = 2;
-			break;
-		}
-		if (currentTabIndex != index) {
-			FragmentTransaction trx = getSupportFragmentManager().beginTransaction();
-			trx.hide(fragments[currentTabIndex]);
-			if (!fragments[index].isAdded()) {
-				trx.add(R.id.fragment_container, fragments[index]);
-			}
-			trx.show(fragments[index]).commit();
-		}
-		mTabs[currentTabIndex].setSelected(false);
-		// set current tab selected
-		mTabs[index].setSelected(true);
-		currentTabIndex = index;
+//		unreadLabel = (TextView) findViewById(R.id.unread_msg_number);
+//		unreadAddressLable = (TextView) findViewById(R.id.unread_address_number);
+//		mTabs = new Button[3];
+//		mTabs[0] = (Button) findViewById(R.id.btn_conversation);
+//		mTabs[1] = (Button) findViewById(R.id.btn_address_list);
+//		mTabs[2] = (Button) findViewById(R.id.btn_setting);
+//		// select first tab
+//		mTabs[0].setSelected(true);
 	}
 
 	EMMessageListener messageListener = new EMMessageListener() {
@@ -250,12 +238,12 @@ public class MainActivity extends BaseActivity {
 			public void run() {
 				// refresh unread count
 				updateUnreadLabel();
-				if (currentTabIndex == 0) {
-					// refresh conversation list
-					if (conversationListFragment != null) {
-						conversationListFragment.refresh();
-					}
-				}
+//				if (currentTabIndex == 0) {
+//					// refresh conversation list
+//					if (conversationListFragment != null) {
+//						conversationListFragment.refresh();
+//					}
+//				}
 			}
 		});
 	}
@@ -277,16 +265,16 @@ public class MainActivity extends BaseActivity {
             public void onReceive(Context context, Intent intent) {
                 updateUnreadLabel();
                 updateUnreadAddressLable();
-                if (currentTabIndex == 0) {
-                    // refresh conversation list
-                    if (conversationListFragment != null) {
-                        conversationListFragment.refresh();
-                    }
-                } else if (currentTabIndex == 1) {
-                    if(contactListFragment != null) {
-                        contactListFragment.refresh();
-                    }
-                }
+//                if (currentTabIndex == 0) {
+//                    // refresh conversation list
+//                    if (conversationListFragment != null) {
+//                        conversationListFragment.refresh();
+//                    }
+//                } else if (currentTabIndex == 1) {
+//                    if(contactListFragment != null) {
+//                        contactListFragment.refresh();
+//                    }
+//                }
                 String action = intent.getAction();
                 if(action.equals(Constant.ACTION_GROUP_CHANAGED)){
                     if (EaseCommonUtils.getTopActivity(MainActivity.this).equals(GroupsActivity.class.getName())) {
@@ -356,12 +344,12 @@ public class MainActivity extends BaseActivity {
 	 */
 	public void updateUnreadLabel() {
 		int count = getUnreadMsgCountTotal();
-		if (count > 0) {
-			unreadLabel.setText(String.valueOf(count));
-			unreadLabel.setVisibility(View.VISIBLE);
-		} else {
-			unreadLabel.setVisibility(View.INVISIBLE);
-		}
+//		if (count > 0) {
+//			unreadLabel.setText(String.valueOf(count));
+//			unreadLabel.setVisibility(View.VISIBLE);
+//		} else {
+//			unreadLabel.setVisibility(View.INVISIBLE);
+//		}
 	}
 
 	/**
@@ -371,11 +359,11 @@ public class MainActivity extends BaseActivity {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				int count = getUnreadAddressCountTotal();
-				if (count > 0) {
-					unreadAddressLable.setVisibility(View.VISIBLE);
-				} else {
-					unreadAddressLable.setVisibility(View.INVISIBLE);
-				}
+//				if (count > 0) {
+//					unreadAddressLable.setVisibility(View.VISIBLE);
+//				} else {
+//					unreadAddressLable.setVisibility(View.INVISIBLE);
+//				}
 			}
 		});
 
