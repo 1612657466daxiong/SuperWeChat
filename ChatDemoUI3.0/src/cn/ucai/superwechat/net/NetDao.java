@@ -4,6 +4,7 @@ import android.content.Context;
 
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.utils.I;
+import cn.ucai.superwechat.utils.MD5;
 import cn.ucai.superwechat.utils.OkHttpUtils;
 
 /**
@@ -15,7 +16,7 @@ public class NetDao {
         utils.url(I.SERVER_ROOT+I.REQUEST_REGISTER)
                 .addParam(I.User.USER_NAME,username)
                 .addParam(I.User.NICK,usernick)
-                .addParam(I.User.PASSWORD,passwrod)
+                .addParam(I.User.PASSWORD, MD5.getMessageDigest(passwrod))
                 .targetClass(Result.class)
                 .post()
                 .execute(listener);
