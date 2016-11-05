@@ -30,4 +30,13 @@ public class NetDao {
                 .execute(listener);
     }
 
+    public static void login(Context context,String username,String pwd,OkHttpUtils.OnCompleteListener listener){
+        OkHttpUtils<Result> utils = new OkHttpUtils<>(context);
+        utils.url(I.SERVER_ROOT+I.REQUEST_LOGIN)
+                .addParam(I.User.USER_NAME,username)
+                .addParam(I.User.PASSWORD,MD5.getMessageDigest(pwd))
+                .targetClass(Result.class)
+                .execute(listener);
+    }
+
 }
