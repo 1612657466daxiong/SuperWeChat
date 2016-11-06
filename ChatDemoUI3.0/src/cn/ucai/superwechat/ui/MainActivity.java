@@ -1,10 +1,10 @@
 /**
  * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,7 @@ package cn.ucai.superwechat.ui;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,13 +25,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,13 +45,6 @@ import com.hyphenate.chat.EMCmdMessageBody;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMConversation.EMConversationType;
 import com.hyphenate.chat.EMMessage;
-import cn.ucai.superwechat.Constant;
-import cn.ucai.superwechat.SuperWeChatHelper;
-import cn.ucai.superwechat.R;
-import cn.ucai.superwechat.db.InviteMessgeDao;
-import cn.ucai.superwechat.db.UserDao;
-import cn.ucai.superwechat.runtimepermissions.PermissionsManager;
-import cn.ucai.superwechat.runtimepermissions.PermissionsResultAction;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.util.EMLog;
 import com.umeng.analytics.MobclickAgent;
@@ -58,11 +52,24 @@ import com.umeng.update.UmengUpdateAgent;
 
 import java.util.List;
 
-@SuppressLint("NewApi")
-public class MainActivity extends BaseActivity {
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import cn.ucai.superwechat.Constant;
+import cn.ucai.superwechat.R;
+import cn.ucai.superwechat.SuperWeChatHelper;
+import cn.ucai.superwechat.adapter.MainTabAdpter;
+import cn.ucai.superwechat.db.InviteMessgeDao;
+import cn.ucai.superwechat.db.UserDao;
+import cn.ucai.superwechat.runtimepermissions.PermissionsManager;
+import cn.ucai.superwechat.runtimepermissions.PermissionsResultAction;
+import cn.ucai.superwechat.widget.DMTabHost;
+import cn.ucai.superwechat.widget.MFViewPager;
 
-	protected static final String TAG = "MainActivity";
-//	// textview for unread message count
+@SuppressLint("NewApi")
+public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedChangeListener,ViewPager.OnPageChangeListener{
+
+    protected static final String TAG = "MainActivity";
+    //	// textview for unread message count
 //	private TextView unreadLabel;
 //	// textview for unread event message
 //	private TextView unreadAddressLable;
@@ -72,40 +79,50 @@ public class MainActivity extends BaseActivity {
 //	private Fragment[] fragments;
 //	private int index;
 //	private int currentTabIndex;
-	// user logged into another device
-	public boolean isConflict = false;
-	// user account was removed
-	private boolean isCurrentAccountRemoved = false;
-	
+    // user logged into another device
 
-	/**
-	 * check if current user account was remove
-	 */
-	public boolean getCurrentAccountRemoved() {
-		return isCurrentAccountRemoved;
-	}
+    @InjectView(R.id.tv_left)
+    TextView mtvLeft;
+    @InjectView(R.id.main_add)
+    ImageView mivadd;
+    @InjectView(R.id.main_DMTH)
+    DMTabHost mtbhost;
+    @InjectView(R.id.main_MFVP)
+    MFViewPager mfvpager;
+    // user account was removed
+    public boolean isConflict = false;
+    private boolean isCurrentAccountRemoved = false;
+    MainTabAdpter madpter;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		savePower();
-		checklogined(savedInstanceState);
+    /**
+     * check if current user account was remove
+     */
+    public boolean getCurrentAccountRemoved() {
+        return isCurrentAccountRemoved;
+    }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.em_activity_main);
-		// runtime permission for android 6.0, just require all permissions here for simple
-		requestPermissions();
-
-		initView();
-
-		umeng();
-		
-		checkAccount();
+        savePower();
+        checklogined(savedInstanceState);
 
 
-		inviteMessgeDao = new InviteMessgeDao(this);
-		UserDao userDao = new UserDao(this);
+        setContentView(R.layout.em_activity_main);
+        ButterKnife.inject(this);
+        // runtime permission for android 6.0, just require all permissions here for simple
+        requestPermissions();
+
+        initView();
+
+        umeng();
+
+        checkAccount();
+
+
+        inviteMessgeDao = new InviteMessgeDao(this);
+        UserDao userDao = new UserDao(this);
 //		conversationListFragment = new ConversationListFragment();
 //		contactListFragment = new ContactListFragment();
 //		SettingsFragment settingFragment = new SettingsFragment();
@@ -115,77 +132,75 @@ public class MainActivity extends BaseActivity {
 //				.add(R.id.fragment_container, contactListFragment).hide(contactListFragment).show(conversationListFragment)
 //				.commit();
 
-		//register broadcast receiver to receive the change of group from DemoHelper
-		registerBroadcastReceiver();
-		
-		
-		EMClient.getInstance().contactManager().setContactListener(new MyContactListener());
-		//debug purpose only
+        //register broadcast receiver to receive the change of group from DemoHelper
+        registerBroadcastReceiver();
+        EMClient.getInstance().contactManager().setContactListener(new MyContactListener());
+        //debug purpose only
         registerInternalDebugReceiver();
-	}
+    }
 
-	private void checkAccount() {
-		if (getIntent().getBooleanExtra(Constant.ACCOUNT_CONFLICT, false) && !isConflictDialogShow) {
-			showConflictDialog();
-		} else if (getIntent().getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
-			showAccountRemovedDialog();
-		}
-	}
+    private void checkAccount() {
+        if (getIntent().getBooleanExtra(Constant.ACCOUNT_CONFLICT, false) && !isConflictDialogShow) {
+            showConflictDialog();
+        } else if (getIntent().getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
+            showAccountRemovedDialog();
+        }
+    }
 
-	private void umeng() {
-		//umeng api
-		MobclickAgent.updateOnlineConfig(this);
-		UmengUpdateAgent.setUpdateOnlyWifi(false);
-		UmengUpdateAgent.update(this);
-	}
+    private void umeng() {
+        //umeng api
+        MobclickAgent.updateOnlineConfig(this);
+        UmengUpdateAgent.setUpdateOnlyWifi(false);
+        UmengUpdateAgent.update(this);
+    }
 
-	private void checklogined(Bundle savedInstanceState) {
-		//make sure activity will not in background if user is logged into another device or removed
-		if (savedInstanceState != null && savedInstanceState.getBoolean(Constant.ACCOUNT_REMOVED, false)) {
-			SuperWeChatHelper.getInstance().logout(false,null);
-			finish();
-			startActivity(new Intent(this, LoginActivity.class));
-			return;
-		} else if (savedInstanceState != null && savedInstanceState.getBoolean("isConflict", false)) {
-			finish();
-			startActivity(new Intent(this, LoginActivity.class));
-			return;
-		}
-	}
+    private void checklogined(Bundle savedInstanceState) {
+        //make sure activity will not in background if user is logged into another device or removed
+        if (savedInstanceState != null && savedInstanceState.getBoolean(Constant.ACCOUNT_REMOVED, false)) {
+            SuperWeChatHelper.getInstance().logout(false, null);
+            finish();
+            startActivity(new Intent(this, LoginActivity.class));
+            return;
+        } else if (savedInstanceState != null && savedInstanceState.getBoolean("isConflict", false)) {
+            finish();
+            startActivity(new Intent(this, LoginActivity.class));
+            return;
+        }
+    }
 
 
-	private void savePower() {
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			String packageName = getPackageName();
-			PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-			if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-				Intent intent = new Intent();
-				intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-				intent.setData(Uri.parse("package:" + packageName));
-				startActivity(intent);
-			}
-		}
-	}
+    private void savePower() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String packageName = getPackageName();
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                startActivity(intent);
+            }
+        }
+    }
 
-	@TargetApi(23)
-	private void requestPermissions() {
-		PermissionsManager.getInstance().requestAllManifestPermissionsIfNecessary(this, new PermissionsResultAction() {
-			@Override
-			public void onGranted() {
+    @TargetApi(23)
+    private void requestPermissions() {
+        PermissionsManager.getInstance().requestAllManifestPermissionsIfNecessary(this, new PermissionsResultAction() {
+            @Override
+            public void onGranted() {
 //				Toast.makeText(MainActivity.this, "All permissions have been granted", Toast.LENGTH_SHORT).show();
-			}
+            }
 
-			@Override
-			public void onDenied(String permission) {
-				//Toast.makeText(MainActivity.this, "Permission " + permission + " has been denied", Toast.LENGTH_SHORT).show();
-			}
-		});
-	}
+            @Override
+            public void onDenied(String permission) {
+                //Toast.makeText(MainActivity.this, "Permission " + permission + " has been denied", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-	/**
-	 * init views
-	 */
-	private void initView() {
+    /**
+     * init views
+     */
+    private void initView() {
 //		unreadLabel = (TextView) findViewById(R.id.unread_msg_number);
 //		unreadAddressLable = (TextView) findViewById(R.id.unread_address_number);
 //		mTabs = new Button[3];
@@ -194,73 +209,88 @@ public class MainActivity extends BaseActivity {
 //		mTabs[2] = (Button) findViewById(R.id.btn_setting);
 //		// select first tab
 //		mTabs[0].setSelected(true);
-	}
+        mtvLeft.setVisibility(View.VISIBLE);
+        mivadd.setVisibility(View.VISIBLE);
+        madpter= new MainTabAdpter(getSupportFragmentManager());
+        mfvpager.setAdapter(madpter);
+        mfvpager.setOffscreenPageLimit(4);
+        madpter.clear();
+        madpter.addFragment(new ConversationListFragment(),getString(R.string.app_name));
+        madpter.addFragment(new ContactListFragment(),getString(R.string.contacts));
+        madpter.addFragment(new DiscoverFragment(),getString(R.string.discover));
+        madpter.addFragment(new SettingsFragment(),getString(R.string.me));
+        madpter.notifyDataSetChanged();
+        mtbhost.setChecked(0);
+        mtbhost.setOnCheckedChangeListener(this);
+        mfvpager.setOnPageChangeListener(this);
+    }
 
-	EMMessageListener messageListener = new EMMessageListener() {
-		
-		@Override
-		public void onMessageReceived(List<EMMessage> messages) {
-			// notify new message
-		    for (EMMessage message : messages) {
-		        SuperWeChatHelper.getInstance().getNotifier().onNewMsg(message);
-		    }
-			refreshUIWithMessage();
-		}
-		
-		@Override
-		public void onCmdMessageReceived(List<EMMessage> messages) {
-			//red packet code : 处理红包回执透传消息
-			for (EMMessage message : messages) {
-				EMCmdMessageBody cmdMsgBody = (EMCmdMessageBody) message.getBody();
-				final String action = cmdMsgBody.action();//获取自定义action
-				if (action.equals(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION)) {
-					RedPacketUtil.receiveRedPacketAckMessage(message);
-				}
-			}
-			//end of red packet code
-			refreshUIWithMessage();
-		}
-		
-		@Override
-		public void onMessageReadAckReceived(List<EMMessage> messages) {
-		}
-		
-		@Override
-		public void onMessageDeliveryAckReceived(List<EMMessage> message) {
-		}
-		
-		@Override
-		public void onMessageChanged(EMMessage message, Object change) {}
-	};
+    EMMessageListener messageListener = new EMMessageListener() {
 
-	private void refreshUIWithMessage() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				// refresh unread count
-				updateUnreadLabel();
+        @Override
+        public void onMessageReceived(List<EMMessage> messages) {
+            // notify new message
+            for (EMMessage message : messages) {
+                SuperWeChatHelper.getInstance().getNotifier().onNewMsg(message);
+            }
+            refreshUIWithMessage();
+        }
+
+        @Override
+        public void onCmdMessageReceived(List<EMMessage> messages) {
+            //red packet code : 处理红包回执透传消息
+            for (EMMessage message : messages) {
+                EMCmdMessageBody cmdMsgBody = (EMCmdMessageBody) message.getBody();
+                final String action = cmdMsgBody.action();//获取自定义action
+                if (action.equals(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION)) {
+                    RedPacketUtil.receiveRedPacketAckMessage(message);
+                }
+            }
+            //end of red packet code
+            refreshUIWithMessage();
+        }
+
+        @Override
+        public void onMessageReadAckReceived(List<EMMessage> messages) {
+        }
+
+        @Override
+        public void onMessageDeliveryAckReceived(List<EMMessage> message) {
+        }
+
+        @Override
+        public void onMessageChanged(EMMessage message, Object change) {
+        }
+    };
+
+    private void refreshUIWithMessage() {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                // refresh unread count
+                updateUnreadLabel();
 //				if (currentTabIndex == 0) {
 //					// refresh conversation list
 //					if (conversationListFragment != null) {
 //						conversationListFragment.refresh();
 //					}
 //				}
-			}
-		});
-	}
+            }
+        });
+    }
 
-	@Override
-	public void back(View view) {
-		super.back(view);
-	}
-	
-	private void registerBroadcastReceiver() {
+    @Override
+    public void back(View view) {
+        super.back(view);
+    }
+
+    private void registerBroadcastReceiver() {
         broadcastManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constant.ACTION_CONTACT_CHANAGED);
         intentFilter.addAction(Constant.ACTION_GROUP_CHANAGED);
-		intentFilter.addAction(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION);
+        intentFilter.addAction(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION);
         broadcastReceiver = new BroadcastReceiver() {
-            
+
             @Override
             public void onReceive(Context context, Intent intent) {
                 updateUnreadLabel();
@@ -276,287 +306,318 @@ public class MainActivity extends BaseActivity {
 //                    }
 //                }
                 String action = intent.getAction();
-                if(action.equals(Constant.ACTION_GROUP_CHANAGED)){
+                if (action.equals(Constant.ACTION_GROUP_CHANAGED)) {
                     if (EaseCommonUtils.getTopActivity(MainActivity.this).equals(GroupsActivity.class.getName())) {
                         GroupsActivity.instance.onResume();
                     }
                 }
-				//red packet code : 处理红包回执透传消息
-				if (action.equals(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION)){
-					if (conversationListFragment != null){
-						conversationListFragment.refresh();
-					}
-				}
-				//end of red packet code
-			}
+                //red packet code : 处理红包回执透传消息
+                if (action.equals(RedPacketConstant.REFRESH_GROUP_RED_PACKET_ACTION)) {
+                    if (conversationListFragment != null) {
+                        conversationListFragment.refresh();
+                    }
+                }
+                //end of red packet code
+            }
         };
         broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
-	
-	public class MyContactListener implements EMContactListener {
+
+    @Override
+    public void onCheckedChange(int checkedPosition, boolean byUser) {
+        mfvpager.setCurrentItem(checkedPosition,false);
+        mtbhost.setChecked(checkedPosition);
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        mtbhost.setChecked(position);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    public class MyContactListener implements EMContactListener {
         @Override
-        public void onContactAdded(String username) {}
+        public void onContactAdded(String username) {
+        }
+
         @Override
         public void onContactDeleted(final String username) {
             runOnUiThread(new Runnable() {
                 public void run() {
-					if (ChatActivity.activityInstance != null && ChatActivity.activityInstance.toChatUsername != null &&
-							username.equals(ChatActivity.activityInstance.toChatUsername)) {
-					    String st10 = getResources().getString(R.string.have_you_removed);
-					    Toast.makeText(MainActivity.this, ChatActivity.activityInstance.getToChatUsername() + st10, Toast.LENGTH_LONG)
-					    .show();
-					    ChatActivity.activityInstance.finish();
-					}
+                    if (ChatActivity.activityInstance != null && ChatActivity.activityInstance.toChatUsername != null &&
+                            username.equals(ChatActivity.activityInstance.toChatUsername)) {
+                        String st10 = getResources().getString(R.string.have_you_removed);
+                        Toast.makeText(MainActivity.this, ChatActivity.activityInstance.getToChatUsername() + st10, Toast.LENGTH_LONG)
+                                .show();
+                        ChatActivity.activityInstance.finish();
+                    }
                 }
             });
         }
-        @Override
-        public void onContactInvited(String username, String reason) {}
-        @Override
-        public void onContactAgreed(String username) {}
-        @Override
-        public void onContactRefused(String username) {}
-	}
-	
-	private void unregisterBroadcastReceiver(){
-	    broadcastManager.unregisterReceiver(broadcastReceiver);
-	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();		
-		
-		if (conflictBuilder != null) {
-			conflictBuilder.create().dismiss();
-			conflictBuilder = null;
-		}
-		unregisterBroadcastReceiver();
+        @Override
+        public void onContactInvited(String username, String reason) {
+        }
 
-		try {
+        @Override
+        public void onContactAgreed(String username) {
+        }
+
+        @Override
+        public void onContactRefused(String username) {
+        }
+    }
+
+    private void unregisterBroadcastReceiver() {
+        broadcastManager.unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (conflictBuilder != null) {
+            conflictBuilder.create().dismiss();
+            conflictBuilder = null;
+        }
+        unregisterBroadcastReceiver();
+
+        try {
             unregisterReceiver(internalDebugReceiver);
         } catch (Exception e) {
         }
-		
-	}
 
-	/**
-	 * update unread message count
-	 */
-	public void updateUnreadLabel() {
-		int count = getUnreadMsgCountTotal();
+    }
+
+    /**
+     * update unread message count
+     */
+    public void updateUnreadLabel() {
+        int count = getUnreadMsgCountTotal();
 //		if (count > 0) {
 //			unreadLabel.setText(String.valueOf(count));
 //			unreadLabel.setVisibility(View.VISIBLE);
 //		} else {
 //			unreadLabel.setVisibility(View.INVISIBLE);
 //		}
-	}
+    }
 
-	/**
-	 * update the total unread count 
-	 */
-	public void updateUnreadAddressLable() {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				int count = getUnreadAddressCountTotal();
+    /**
+     * update the total unread count
+     */
+    public void updateUnreadAddressLable() {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                int count = getUnreadAddressCountTotal();
 //				if (count > 0) {
 //					unreadAddressLable.setVisibility(View.VISIBLE);
 //				} else {
 //					unreadAddressLable.setVisibility(View.INVISIBLE);
 //				}
-			}
-		});
+            }
+        });
 
-	}
+    }
 
-	/**
-	 * get unread event notification count, including application, accepted, etc
-	 * 
-	 * @return
-	 */
-	public int getUnreadAddressCountTotal() {
-		int unreadAddressCountTotal = 0;
-		unreadAddressCountTotal = inviteMessgeDao.getUnreadMessagesCount();
-		return unreadAddressCountTotal;
-	}
+    /**
+     * get unread event notification count, including application, accepted, etc
+     *
+     * @return
+     */
+    public int getUnreadAddressCountTotal() {
+        int unreadAddressCountTotal = 0;
+        unreadAddressCountTotal = inviteMessgeDao.getUnreadMessagesCount();
+        return unreadAddressCountTotal;
+    }
 
-	/**
-	 * get unread message count
-	 * 
-	 * @return
-	 */
-	public int getUnreadMsgCountTotal() {
-		int unreadMsgCountTotal = 0;
-		int chatroomUnreadMsgCount = 0;
-		unreadMsgCountTotal = EMClient.getInstance().chatManager().getUnreadMsgsCount();
-		for(EMConversation conversation:EMClient.getInstance().chatManager().getAllConversations().values()){
-			if(conversation.getType() == EMConversationType.ChatRoom)
-			chatroomUnreadMsgCount=chatroomUnreadMsgCount+conversation.getUnreadMsgCount();
-		}
-		return unreadMsgCountTotal-chatroomUnreadMsgCount;
-	}
+    /**
+     * get unread message count
+     *
+     * @return
+     */
+    public int getUnreadMsgCountTotal() {
+        int unreadMsgCountTotal = 0;
+        int chatroomUnreadMsgCount = 0;
+        unreadMsgCountTotal = EMClient.getInstance().chatManager().getUnreadMsgsCount();
+        for (EMConversation conversation : EMClient.getInstance().chatManager().getAllConversations().values()) {
+            if (conversation.getType() == EMConversationType.ChatRoom)
+                chatroomUnreadMsgCount = chatroomUnreadMsgCount + conversation.getUnreadMsgCount();
+        }
+        return unreadMsgCountTotal - chatroomUnreadMsgCount;
+    }
 
-	private InviteMessgeDao inviteMessgeDao;
+    private InviteMessgeDao inviteMessgeDao;
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		if (!isConflict && !isCurrentAccountRemoved) {
-			updateUnreadLabel();
-			updateUnreadAddressLable();
-		}
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-		// unregister this event listener when this activity enters the
-		// background
-		SuperWeChatHelper sdkHelper = SuperWeChatHelper.getInstance();
-		sdkHelper.pushActivity(this);
+        if (!isConflict && !isCurrentAccountRemoved) {
+            updateUnreadLabel();
+            updateUnreadAddressLable();
+        }
 
-		EMClient.getInstance().chatManager().addMessageListener(messageListener);
-	}
+        // unregister this event listener when this activity enters the
+        // background
+        SuperWeChatHelper sdkHelper = SuperWeChatHelper.getInstance();
+        sdkHelper.pushActivity(this);
 
-	@Override
-	protected void onStop() {
-		EMClient.getInstance().chatManager().removeMessageListener(messageListener);
-		SuperWeChatHelper sdkHelper = SuperWeChatHelper.getInstance();
-		sdkHelper.popActivity(this);
+        EMClient.getInstance().chatManager().addMessageListener(messageListener);
+    }
 
-		super.onStop();
-	}
+    @Override
+    protected void onStop() {
+        EMClient.getInstance().chatManager().removeMessageListener(messageListener);
+        SuperWeChatHelper sdkHelper = SuperWeChatHelper.getInstance();
+        sdkHelper.popActivity(this);
 
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		outState.putBoolean("isConflict", isConflict);
-		outState.putBoolean(Constant.ACCOUNT_REMOVED, isCurrentAccountRemoved);
-		super.onSaveInstanceState(outState);
-	}
+        super.onStop();
+    }
 
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			moveTaskToBack(false);
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("isConflict", isConflict);
+        outState.putBoolean(Constant.ACCOUNT_REMOVED, isCurrentAccountRemoved);
+        super.onSaveInstanceState(outState);
+    }
 
-	private android.app.AlertDialog.Builder conflictBuilder;
-	private android.app.AlertDialog.Builder accountRemovedBuilder;
-	private boolean isConflictDialogShow;
-	private boolean isAccountRemovedDialogShow;
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(false);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private AlertDialog.Builder conflictBuilder;
+    private AlertDialog.Builder accountRemovedBuilder;
+    private boolean isConflictDialogShow;
+    private boolean isAccountRemovedDialogShow;
     private BroadcastReceiver internalDebugReceiver;
     private ConversationListFragment conversationListFragment;
     private BroadcastReceiver broadcastReceiver;
     private LocalBroadcastManager broadcastManager;
 
-	/**
-	 * show the dialog when user logged into another device
-	 */
-	private void showConflictDialog() {
-		isConflictDialogShow = true;
-		SuperWeChatHelper.getInstance().logout(false,null);
-		String st = getResources().getString(R.string.Logoff_notification);
-		if (!MainActivity.this.isFinishing()) {
-			// clear up global variables
-			try {
-				if (conflictBuilder == null)
-					conflictBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
-				conflictBuilder.setTitle(st);
-				conflictBuilder.setMessage(R.string.connect_conflict);
-				conflictBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+    /**
+     * show the dialog when user logged into another device
+     */
+    private void showConflictDialog() {
+        isConflictDialogShow = true;
+        SuperWeChatHelper.getInstance().logout(false, null);
+        String st = getResources().getString(R.string.Logoff_notification);
+        if (!MainActivity.this.isFinishing()) {
+            // clear up global variables
+            try {
+                if (conflictBuilder == null)
+                    conflictBuilder = new AlertDialog.Builder(MainActivity.this);
+                conflictBuilder.setTitle(st);
+                conflictBuilder.setMessage(R.string.connect_conflict);
+                conflictBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						conflictBuilder = null;
-						finish();
-						Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-						startActivity(intent);
-					}
-				});
-				conflictBuilder.setCancelable(false);
-				conflictBuilder.create().show();
-				isConflict = true;
-			} catch (Exception e) {
-				EMLog.e(TAG, "---------color conflictBuilder error" + e.getMessage());
-			}
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        conflictBuilder = null;
+                        finish();
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                });
+                conflictBuilder.setCancelable(false);
+                conflictBuilder.create().show();
+                isConflict = true;
+            } catch (Exception e) {
+                EMLog.e(TAG, "---------color conflictBuilder error" + e.getMessage());
+            }
 
-		}
+        }
 
-	}
+    }
 
-	/**
-	 * show the dialog if user account is removed
-	 */
-	private void showAccountRemovedDialog() {
-		isAccountRemovedDialogShow = true;
-		SuperWeChatHelper.getInstance().logout(false,null);
-		String st5 = getResources().getString(R.string.Remove_the_notification);
-		if (!MainActivity.this.isFinishing()) {
-			// clear up global variables
-			try {
-				if (accountRemovedBuilder == null)
-					accountRemovedBuilder = new android.app.AlertDialog.Builder(MainActivity.this);
-				accountRemovedBuilder.setTitle(st5);
-				accountRemovedBuilder.setMessage(R.string.em_user_remove);
-				accountRemovedBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+    /**
+     * show the dialog if user account is removed
+     */
+    private void showAccountRemovedDialog() {
+        isAccountRemovedDialogShow = true;
+        SuperWeChatHelper.getInstance().logout(false, null);
+        String st5 = getResources().getString(R.string.Remove_the_notification);
+        if (!MainActivity.this.isFinishing()) {
+            // clear up global variables
+            try {
+                if (accountRemovedBuilder == null)
+                    accountRemovedBuilder = new AlertDialog.Builder(MainActivity.this);
+                accountRemovedBuilder.setTitle(st5);
+                accountRemovedBuilder.setMessage(R.string.em_user_remove);
+                accountRemovedBuilder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						accountRemovedBuilder = null;
-						finish();
-						startActivity(new Intent(MainActivity.this, LoginActivity.class));
-					}
-				});
-				accountRemovedBuilder.setCancelable(false);
-				accountRemovedBuilder.create().show();
-				isCurrentAccountRemoved = true;
-			} catch (Exception e) {
-				EMLog.e(TAG, "---------color userRemovedBuilder error" + e.getMessage());
-			}
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        accountRemovedBuilder = null;
+                        finish();
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    }
+                });
+                accountRemovedBuilder.setCancelable(false);
+                accountRemovedBuilder.create().show();
+                isCurrentAccountRemoved = true;
+            } catch (Exception e) {
+                EMLog.e(TAG, "---------color userRemovedBuilder error" + e.getMessage());
+            }
 
-		}
+        }
 
-	}
+    }
 
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
-		if (intent.getBooleanExtra(Constant.ACCOUNT_CONFLICT, false) && !isConflictDialogShow) {
-			showConflictDialog();
-		} else if (intent.getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
-			showAccountRemovedDialog();
-		}
-	}
-	
-	/**
-	 * debug purpose only, you can ignore this
-	 */
-	private void registerInternalDebugReceiver() {
-	    internalDebugReceiver = new BroadcastReceiver() {
-            
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getBooleanExtra(Constant.ACCOUNT_CONFLICT, false) && !isConflictDialogShow) {
+            showConflictDialog();
+        } else if (intent.getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
+            showAccountRemovedDialog();
+        }
+    }
+
+    /**
+     * debug purpose only, you can ignore this
+     */
+    private void registerInternalDebugReceiver() {
+        internalDebugReceiver = new BroadcastReceiver() {
+
             @Override
             public void onReceive(Context context, Intent intent) {
-                SuperWeChatHelper.getInstance().logout(false,new EMCallBack() {
-                    
+                SuperWeChatHelper.getInstance().logout(false, new EMCallBack() {
+
                     @Override
                     public void onSuccess() {
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 finish();
                                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                                
+
                             }
                         });
                     }
-                    
+
                     @Override
-                    public void onProgress(int progress, String status) {}
-                    
+                    public void onProgress(int progress, String status) {
+                    }
+
                     @Override
-                    public void onError(int code, String message) {}
+                    public void onError(int code, String message) {
+                    }
                 });
             }
         };
@@ -564,9 +625,9 @@ public class MainActivity extends BaseActivity {
         registerReceiver(internalDebugReceiver, filter);
     }
 
-	@Override 
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-			@NonNull int[] grantResults) {
-		PermissionsManager.getInstance().notifyPermissionsChange(permissions, grantResults);
-	}
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        PermissionsManager.getInstance().notifyPermissionsChange(permissions, grantResults);
+    }
 }
