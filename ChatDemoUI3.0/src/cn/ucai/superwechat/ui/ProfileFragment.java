@@ -11,12 +11,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.easemob.redpacketui.utils.RedPacketUtil;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.utils.EaseUserUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import cn.ucai.superwechat.Constant;
 import cn.ucai.superwechat.R;
 
 /**
@@ -78,9 +80,20 @@ public class ProfileFragment extends Fragment {
             case R.id.layout_profile:
                 break;
             case R.id.tvMoney:
+                //red packet code : 进入零钱页面
+                RedPacketUtil.startChangeActivity(getActivity());
                 break;
             case R.id.tvSetting:
                 break;
+        }
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(((MainActivity)getActivity()).isConflict){
+            outState.putBoolean("isConflict", true);
+        }else if(((MainActivity)getActivity()).getCurrentAccountRemoved()){
+            outState.putBoolean(Constant.ACCOUNT_REMOVED, true);
         }
     }
 }
