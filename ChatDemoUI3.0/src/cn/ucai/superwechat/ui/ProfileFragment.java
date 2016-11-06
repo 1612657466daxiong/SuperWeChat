@@ -20,6 +20,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import cn.ucai.superwechat.Constant;
 import cn.ucai.superwechat.R;
+import cn.ucai.superwechat.utils.MFGT;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -84,6 +85,7 @@ public class ProfileFragment extends Fragment {
                 RedPacketUtil.startChangeActivity(getActivity());
                 break;
             case R.id.tvSetting:
+                MFGT.gotoSettingsActivity(getActivity());
                 break;
         }
     }

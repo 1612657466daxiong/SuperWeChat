@@ -1,8 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:background="@color/black"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="horizontal" android:layout_width="match_parent"
+android:layout_height="50dp"
+    android:background="@color/colorPrimary"
     >
+        <TextView
+            android:id="@+id/tvLeft"
+            android:text="微信"
+            android:textSize="20dp"
+            android:gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:paddingLeft="10dp"
+        android:visibility="gone"
+        android:src="@drawable/icon_back"/>
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="标题"
+        android:textSize="22dp"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        android:gravity="center"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:background="@null"
+        android:text="添加朋友"
+        android:visibility="gone"
+        android:textColor="@color/white"/>
+    <ImageView
+        android:id="@+id/ivAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/em_add"
+        android:visibility="gone"
+        android:layout_marginRight="10dp"/>
+</RelativeLayout>
 
-</LinearLayout>
