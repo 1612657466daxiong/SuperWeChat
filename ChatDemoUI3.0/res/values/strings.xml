@@ -103,4 +103,7 @@
     <string name="setting_txt_tongyong">通用</string>
     <string name="setting_txt_about">关于微信</string>
     <string name="setting_btn_exit">退出登录</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
