@@ -41,6 +41,7 @@ import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.net.NetDao;
 import cn.ucai.superwechat.utils.CommonUtils;
+import cn.ucai.superwechat.utils.I;
 import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.OkHttpUtils;
 
@@ -81,7 +82,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 //        tvUsername = (TextView) findViewById(R.id.user_username);
 //        tvNickName = (TextView) findViewById(R.id.user_nickname);
 //        rlNickName = (RelativeLayout) findViewById(R.id.rl_nickname);
-//        iconRightArrow = (ImageView) findViewById(R.id.ic_right_arrow);
+  //      iconRightArrow = (ImageView) findViewById(R.id.ic_right_arrow);
         mivBack.setVisibility(View.VISIBLE);
         mtvTitle.setVisibility(View.VISIBLE);
         mtvTitle.setText(getString(R.string.title_user_profile));
@@ -92,6 +93,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
         EaseUserUtils.setCurrentAppUserAvatar(this,headAvatar);
         EaseUserUtils.setCurrentAppUserNick(tvNickName);
         EaseUserUtils.setCurrentAppUserName(tvUsername);
+
     }
 
 
@@ -367,7 +369,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
         Bundle extras = data.getExtras();
         if (extras!=null){
             Bitmap bitmap = extras.getParcelable("data");
-            String ptah = EaseImageUtils.getImagePath(user.getMUserName());
+            String ptah = EaseImageUtils.getImagePath(user.getMUserName()+ I.AVATAR_SUFFIX_JPG);
             File file = new File(ptah);
             try {
                 BufferedOutputStream bos =new BufferedOutputStream(new FileOutputStream(file));
@@ -377,7 +379,9 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return file;
         }
+        return null;
     }
 
 }
