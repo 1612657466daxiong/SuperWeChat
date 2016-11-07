@@ -23,9 +23,15 @@ import com.google.gson.Gson;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.domain.User;
+import com.hyphenate.easeui.utils.EaseImageUtils;
 import com.hyphenate.easeui.utils.EaseUserUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -220,13 +226,43 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
                 break;
             case REQUESTCODE_CUTTING:
                 if (data != null) {
-                    setPicToView(data);
+                    updateAppAvater(data);
+                    //setPicToView(data);
                 }
                 break;
             default:
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void updateAppAvater(final Intent picdata) {
+        dialog = ProgressDialog.show(this, getString(R.string.dl_update_photo), getString(R.string.dl_waiting));
+        dialog.show();
+        File file =saveBitmap2file(picdata);
+        NetDao.updateAvater(this, user.getMUserName(), file, new OkHttpUtils.OnCompleteListener<Result>() {
+            @Override
+            public void onSuccess(Result result) {
+                if (result!=null){
+                    if (result.isRetMsg()){
+                        setPicToView(picdata);
+                    }else {
+                        dialog.dismiss();
+                        CommonUtils.showShortToast(R.string.toast_updatephoto_fail);
+                    }
+                }else {
+                    dialog.dismiss();
+                    CommonUtils.showShortToast(R.string.toast_updatephoto_fail);
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                dialog.dismiss();
+                L.e(TAG,"error="+error);
+                CommonUtils.showShortToast(R.string.toast_updatephoto_fail);
+            }
+        });
     }
 
     public void startPhotoZoom(Uri uri) {
@@ -253,13 +289,13 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
             Bitmap photo = extras.getParcelable("data");
             Drawable drawable = new BitmapDrawable(getResources(), photo);
             headAvatar.setImageDrawable(drawable);
-         //   uploadUserAvatar(Bitmap2Bytes(photo));
+           uploadUserAvatar(Bitmap2Bytes(photo));
         }
 
     }
 
     private void uploadUserAvatar(final byte[] data) {
-        dialog = ProgressDialog.show(this, getString(R.string.dl_update_photo), getString(R.string.dl_waiting));
+
         new Thread(new Runnable() {
 
             @Override
@@ -283,7 +319,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
             }
         }).start();
 
-        dialog.show();
+
     }
 
 
@@ -327,6 +363,21 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
                 break;
         }
     }
-
+    public File saveBitmap2file(Intent data){
+        Bundle extras = data.getExtras();
+        if (extras!=null){
+            Bitmap bitmap = extras.getParcelable("data");
+            String ptah = EaseImageUtils.getImagePath(user.getMUserName());
+            File file = new File(ptah);
+            try {
+                BufferedOutputStream bos =new BufferedOutputStream(new FileOutputStream(file));
+                bitmap.compress(Bitmap.CompressFormat.PNG,100,bos);
+                bos.flush();
+                bos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
