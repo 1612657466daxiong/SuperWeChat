@@ -31,6 +31,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,14 +55,18 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import cn.ucai.superwechat.Constant;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.adapter.MainTabAdpter;
 import cn.ucai.superwechat.db.InviteMessgeDao;
 import cn.ucai.superwechat.db.UserDao;
+import cn.ucai.superwechat.dialog.TitleMenu.ActionItem;
+import cn.ucai.superwechat.dialog.TitleMenu.TitlePopup;
 import cn.ucai.superwechat.runtimepermissions.PermissionsManager;
 import cn.ucai.superwechat.runtimepermissions.PermissionsResultAction;
+import cn.ucai.superwechat.utils.MFGT;
 import cn.ucai.superwechat.widget.DMTabHost;
 import cn.ucai.superwechat.widget.MFViewPager;
 
@@ -81,9 +86,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 //	private int currentTabIndex;
     // user logged into another device
 
-    @InjectView(R.id.tv_left)
     TextView mtvLeft;
-    @InjectView(R.id.main_add)
     ImageView mivadd;
     @InjectView(R.id.main_DMTH)
     DMTabHost mtbhost;
@@ -93,6 +96,8 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
     public boolean isConflict = false;
     private boolean isCurrentAccountRemoved = false;
     MainTabAdpter madpter;
+
+    TitlePopup mtitlepopup;
 
     /**
      * check if current user account was remove
@@ -168,6 +173,10 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         }
     }
 
+    @OnClick(R.id.ivAdd)
+    public void ShowPopup(View view){
+        mtitlepopup.show(findViewById(R.id.layout_title));
+    }
 
     private void savePower() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -209,6 +218,8 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 //		mTabs[2] = (Button) findViewById(R.id.btn_setting);
 //		// select first tab
 //		mTabs[0].setSelected(true);
+        mivadd= (ImageView) findViewById(R.id.ivAdd);
+        mtvLeft= (TextView) findViewById(R.id.tvLeft);
         mtvLeft.setVisibility(View.VISIBLE);
         mivadd.setVisibility(View.VISIBLE);
         madpter= new MainTabAdpter(getSupportFragmentManager());
@@ -224,7 +235,29 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         mtbhost.setChecked(0);
         mtbhost.setOnCheckedChangeListener(this);
         mfvpager.setOnPageChangeListener(this);
+        mtitlepopup= new TitlePopup(this, ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        mtitlepopup.addAction(new ActionItem(this,R.string.menu_groupchat,R.drawable.icon_menu_group));
+        mtitlepopup.addAction(new ActionItem(this,R.string.add_friend,R.drawable.icon_menu_addfriend));
+        mtitlepopup.addAction(new ActionItem(this,R.string.menu_qrcode,R.drawable.icon_menu_sao));
+        mtitlepopup.addAction(new ActionItem(this,R.string.menu_money,R.drawable.icon_menu_money));
+        mtitlepopup.setItemOnClickListener(mOnClickListener);
     }
+    TitlePopup.OnItemOnClickListener mOnClickListener = new TitlePopup.OnItemOnClickListener() {
+        @Override
+        public void onItemClick(ActionItem item, int position) {
+            switch (position){
+                case 0:
+                    break;
+                case 1:
+                    MFGT.gotoaddfirend(MainActivity.this);
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+            }
+        }
+    };
 
     EMMessageListener messageListener = new EMMessageListener() {
 

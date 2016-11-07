@@ -5,32 +5,14 @@
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="48dp"
+
     android:background="@color/common_bg" >
 
-    <RelativeLayout android:id="@+id/main_title"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/black"
-        android:padding="5dp"
-        >
-        <TextView
-            android:id="@+id/tv_left"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="微信"
-            android:textColor="@color/white"
-            android:gravity="center_vertical"
-            android:textSize="30sp"/>
-        <ImageView
-            android:id="@+id/main_add"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/icon_add"
-            android:layout_alignParentRight="true"/>
-    </RelativeLayout>
+<include
+    android:id="@+id/layout_main_title"
+    layout="@layout/view_layout_title">
 
-
+</include>
     <LinearLayout
         android:id="@+id/bottom_cai"
         android:layout_alignParentBottom="true"
@@ -85,7 +67,7 @@
     <cn.ucai.superwechat.widget.MFViewPager
         android:id="@+id/main_MFVP"
         android:layout_above="@id/bottom_cai"
-        android:layout_below="@id/main_title"
+        android:layout_below="@id/layout_main_title"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
