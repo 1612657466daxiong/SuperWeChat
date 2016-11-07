@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="username_cannot_be_modify">用户名不能更改</string>
+    <string name="nick_is_no_modify">昵称未修改</string>
+</resources>

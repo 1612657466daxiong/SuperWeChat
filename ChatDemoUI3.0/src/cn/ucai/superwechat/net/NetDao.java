@@ -2,6 +2,8 @@ package cn.ucai.superwechat.net;
 
 import android.content.Context;
 
+import com.baidu.platform.comapi.map.C;
+
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.utils.I;
 import cn.ucai.superwechat.utils.MD5;
@@ -35,6 +37,14 @@ public class NetDao {
         utils.url(I.SERVER_ROOT+I.REQUEST_LOGIN)
                 .addParam(I.User.USER_NAME,username)
                 .addParam(I.User.PASSWORD,MD5.getMessageDigest(pwd))
+                .targetClass(Result.class)
+                .execute(listener);
+    }
+    public static void updatenick(Context context,String username,String nick,OkHttpUtils.OnCompleteListener listener){
+        OkHttpUtils<Result> utils = new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_UPDATE_USER_NICK)
+                .addParam(I.User.USER_NAME,username)
+                .addParam(I.User.NICK,nick)
                 .targetClass(Result.class)
                 .execute(listener);
     }

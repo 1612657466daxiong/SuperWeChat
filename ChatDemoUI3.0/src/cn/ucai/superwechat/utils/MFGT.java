@@ -8,6 +8,7 @@ import cn.ucai.superwechat.ui.LoginActivity;
 import cn.ucai.superwechat.ui.MainActivity;
 import cn.ucai.superwechat.ui.RegisterActivity;
 import cn.ucai.superwechat.ui.SettingsActivity;
+import cn.ucai.superwechat.ui.UserProfileActivity;
 
 /**
  * Created by Administrator on 2016/11/1.
@@ -28,6 +29,11 @@ public class MFGT {
     }
     public static void gotoSettingsActivity(Activity context){
         Intent intent = new Intent(context, SettingsActivity.class);
+        startActivity(context,intent);
+    }
+
+    public static void gotoUserProfileActivity(Activity context){
+        Intent intent = new Intent(context, UserProfileActivity.class);
         startActivity(context,intent);
     }
 

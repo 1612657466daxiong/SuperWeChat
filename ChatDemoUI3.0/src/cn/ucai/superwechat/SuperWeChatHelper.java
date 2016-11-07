@@ -896,6 +896,10 @@ public class SuperWeChatHelper {
     	contactList.put(user.getUsername(), user);
     	demoModel.saveContact(user);
     }
+    public void saveappContact(User user){
+        appContactList.put(user.getMUserName(), user);
+        demoModel.saveAppContact(user);
+    }
     
     /**
      * get contact list

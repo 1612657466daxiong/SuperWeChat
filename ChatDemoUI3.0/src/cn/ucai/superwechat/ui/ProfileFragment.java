@@ -79,6 +79,7 @@ public class ProfileFragment extends Fragment {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.layout_profile:
+                MFGT.gotoUserProfileActivity(getActivity());
                 break;
             case R.id.tvMoney:
                 //red packet code : 进入零钱页面
@@ -97,5 +98,11 @@ public class ProfileFragment extends Fragment {
         }else if(((MainActivity)getActivity()).getCurrentAccountRemoved()){
             outState.putBoolean(Constant.ACCOUNT_REMOVED, true);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setUserInfo();
     }
 }

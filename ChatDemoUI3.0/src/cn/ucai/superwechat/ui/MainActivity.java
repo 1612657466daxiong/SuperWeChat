@@ -218,7 +218,8 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         madpter.addFragment(new ConversationListFragment(),getString(R.string.app_name));
         madpter.addFragment(new ContactListFragment(),getString(R.string.contacts));
         madpter.addFragment(new DiscoverFragment(),getString(R.string.discover));
-        madpter.addFragment(new SettingsActivity(),getString(R.string.me));
+       // madpter.addFragment(new SettingsActivity(),getString(R.string.me));
+        madpter.addFragment(new ProfileFragment(),getString(R.string.me));
         madpter.notifyDataSetChanged();
         mtbhost.setChecked(0);
         mtbhost.setOnCheckedChangeListener(this);
@@ -326,7 +327,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
     @Override
     public void onCheckedChange(int checkedPosition, boolean byUser) {
         mfvpager.setCurrentItem(checkedPosition,false);
-        mtbhost.setChecked(checkedPosition);
+      //  mtbhost.setChecked(checkedPosition);
     }
 
     @Override
