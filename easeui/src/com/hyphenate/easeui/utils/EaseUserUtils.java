@@ -102,6 +102,19 @@ public class EaseUserUtils {
             Glide.with(context).load(R.drawable.default_avatar).into(imageView);
         }
     }
+    public static void setAppUserAvatar(Context context, User user, ImageView imageView){
+        if(user != null && user!= null){
+            try {
+                int avatarResId = Integer.parseInt(user.getAvater());
+                Glide.with(context).load(avatarResId).into(imageView);
+            } catch (Exception e) {
+                //use default avatar
+                Glide.with(context).load(user.getAvater()).diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(R.drawable.default_avatar).into(imageView);
+            }
+        }else{
+            Glide.with(context).load(R.drawable.default_avatar).into(imageView);
+        }
+    }
 
     /**
      * set user's nickname
@@ -117,7 +130,7 @@ public class EaseUserUtils {
         }
     }
 
-    public static void setCurrentAppUserAvatar(FragmentActivity activity, ImageView imageView) {
+    public static void setCurrentAppUserAvatar(Activity activity, ImageView imageView) {
         String username = EMClient.getInstance().getCurrentUser();
         setAppUserAvatar(activity,username,imageView);
     }

@@ -84,6 +84,7 @@ public class AddFrinendActivity extends BaseActivity {
                     //demo use a hardcode reason here, you need let user to input if you like
                     String string = meditAddfriend.getText().toString().trim();
                     EMClient.getInstance().contactManager().addContact(userName , string);
+
                     L.e(TAG,"add Username"+userName);
                     L.e(TAG,"add MSG"+msg);
                     runOnUiThread(new Runnable() {

@@ -15,10 +15,17 @@ package cn.ucai.superwechat.adapter;
 
 import java.util.List;
 
+import com.google.gson.Gson;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.domain.User;
+import com.hyphenate.easeui.utils.EaseUserUtils;
+
 import cn.ucai.superwechat.R;
+import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.db.InviteMessgeDao;
 import cn.ucai.superwechat.domain.InviteMessage;
+import cn.ucai.superwechat.net.NetDao;
+import cn.ucai.superwechat.utils.OkHttpUtils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -39,6 +46,7 @@ public class NewFriendsMsgAdapter extends ArrayAdapter<InviteMessage> {
 
 	private Context context;
 	private InviteMessgeDao messgeDao;
+	User user;
 
 	public NewFriendsMsgAdapter(Context context, int textViewResourceId, List<InviteMessage> objects) {
 		super(context, textViewResourceId, objects);
@@ -92,6 +100,24 @@ public class NewFriendsMsgAdapter extends ArrayAdapter<InviteMessage> {
 			
 			holder.reason.setText(msg.getReason());
 			holder.name.setText(msg.getFrom());
+			NetDao.searchuser(context, msg.getFrom(), new OkHttpUtils.OnCompleteListener<Result>() {
+				@Override
+				public void onSuccess(Result result) {
+					if (result!=null){
+						if (result.isRetMsg()){
+							Gson gson = new Gson();
+							user = gson.fromJson(result.getRetData().toString(), User.class);
+							EaseUserUtils.setAppUserAvatar(context,user,holder.avator);
+							EaseUserUtils.setAppUserNick(user.getMUserNick(),holder.name);
+						}
+					}
+				}
+
+				@Override
+				public void onError(String error) {
+
+				}
+			});
 			// holder.time.setText(DateUtils.getTimestampString(new
 			// Date(msg.getTime())));
 			if (msg.getStatus() == InviteMessage.InviteMesageStatus.BEAGREED) {

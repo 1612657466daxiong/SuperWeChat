@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:contactItemImage="@drawable/em_new_friends_icon"
-        app:contactItemName="@string/Application_and_notify" />
+        app:contactItemName="@string/recommended_friends" />
 
     <cn.ucai.superwechat.widget.ContactItemView
         android:id="@+id/group_item"
