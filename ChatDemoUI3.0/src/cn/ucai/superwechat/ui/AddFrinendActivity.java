@@ -17,13 +17,14 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import cn.ucai.superwechat.R;
-import cn.ucai.superwechat.SuperWeChatHelper;
+import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.MFGT;
 
 /**
  * Created by Administrator on 2016/11/8.
  */
 public class AddFrinendActivity extends BaseActivity {
+    private final String TAG=AddFrinendActivity.class.getSimpleName();
     @InjectView(R.id.iv_back)
     ImageView mivBack;
     @InjectView(R.id.tv_title)
@@ -36,11 +37,14 @@ public class AddFrinendActivity extends BaseActivity {
     String msg;
     private ProgressDialog progressDialog;
 
+
+
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+    protected void onCreate(Bundle arg0) {
+        super.onCreate(arg0);
         setContentView(R.layout.activity_addfriend);
         ButterKnife.inject(this);
-       userName = getIntent().getStringExtra("UserName");
+        userName = getIntent().getStringExtra("UserName");
         if (userName==null){
             finish();
         }
@@ -53,7 +57,7 @@ public class AddFrinendActivity extends BaseActivity {
         mivBack.setVisibility(View.VISIBLE);
         mtvTitle.setText(getString(R.string.add_friend));
         msg=getString(R.string.addcontact_send_msg_prefix)
-                + EaseUserUtils.getCurrentUserInfo().getMUserNick();
+                + EaseUserUtils.getCurrentAppUserInfo().getMUserNick();
         meditAddfriend.setText(msg);
     }
 
@@ -76,11 +80,12 @@ public class AddFrinendActivity extends BaseActivity {
         progressDialog.show();
         new Thread(new Runnable() {
             public void run() {
-
                 try {
                     //demo use a hardcode reason here, you need let user to input if you like
-                    String s = getResources().getString(R.string.Add_a_friend);
-                    EMClient.getInstance().contactManager().addContact(userName , msg);
+                    String string = meditAddfriend.getText().toString().trim();
+                    EMClient.getInstance().contactManager().addContact(userName , string);
+                    L.e(TAG,"add Username"+userName);
+                    L.e(TAG,"add MSG"+msg);
                     runOnUiThread(new Runnable() {
                         public void run() {
                             progressDialog.dismiss();

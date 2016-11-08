@@ -39,9 +39,10 @@ public class FriendProfileActivity extends BaseActivity {
     @InjectView(R.id.bt_friend_shiping)
     Button mbtFriendShiping;
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(Bundle arg0) {
+        super.onCreate(arg0);
         setContentView(R.layout.activity_friend_pro);
         ButterKnife.inject(this);
         user = (User) getIntent().getSerializableExtra("User");

@@ -4,4 +4,5 @@
     <string name="nick_is_no_modify">昵称未修改</string>
     <string name="friend_not_find">找不到该用户</string>
     <string name="search_failed">搜索联系人失败</string>
+    <string name="wechat_left">微信</string>
 </resources>

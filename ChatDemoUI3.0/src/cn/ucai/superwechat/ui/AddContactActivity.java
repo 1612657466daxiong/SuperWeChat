@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,14 +46,14 @@ public class AddContactActivity extends BaseActivity {
     ImageView mivBack;
     @InjectView(R.id.tv_title)
     TextView mtvTitle;
-    @InjectView(R.id.tvRig)
-    TextView mtvRig;
     @InjectView(R.id.et_username)
     EditText editText;
+    @InjectView(R.id.btn_rig)
+    Button mbtnRig;
 
     private String toAddUsername;
     private ProgressDialog progressDialog;
-    private final String TAG=AddContactActivity.class.getSimpleName();
+    private final String TAG = AddContactActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +67,10 @@ public class AddContactActivity extends BaseActivity {
     private void initView() {
         mivBack.setVisibility(View.VISIBLE);
         mtvTitle.setVisibility(View.VISIBLE);
-        mtvRig.setVisibility(View.VISIBLE);
         mtvTitle.setText(getString(R.string.menu_addfriend));
-        mtvRig.setText(getString(R.string.search));
+        mbtnRig.setVisibility(View.VISIBLE);
+        mbtnRig.setText(getString(R.string.search));
     }
-
 
 
     public void searchContact() {
@@ -96,26 +94,27 @@ public class AddContactActivity extends BaseActivity {
             @Override
             public void onSuccess(Result result) {
                 progressDialog.dismiss();
-                if (result!=null){
-                    if (result.isRetMsg()){
+                if (result != null) {
+                    if (result.isRetMsg()) {
                         Gson gson = new Gson();
                         User user = gson.fromJson(result.getRetData().toString(), User.class);
-                        if (user!=null){
-                            MFGT.gotofriendactivity(AddContactActivity.this,user);
-                        }else {
+                        L.e(TAG,"user---"+user.getMUserName());
+                        if (user != null) {
+                            MFGT.gotofriendactivity(AddContactActivity.this, user);
+                        } else {
                             CommonUtils.showShortToast(R.string.friend_not_find);
                         }
-                    }else {
+                    } else {
                         CommonUtils.showShortToast(R.string.search_failed);
                     }
-                }else {
+                } else {
                     CommonUtils.showShortToast(R.string.search_failed);
                 }
             }
 
             @Override
             public void onError(String error) {
-                L.e(TAG,"error="+error);
+                L.e(TAG, "error=" + error);
                 progressDialog.dismiss();
                 CommonUtils.showShortToast(R.string.search_failed);
             }
@@ -123,7 +122,8 @@ public class AddContactActivity extends BaseActivity {
     }
 
     /**
-     *  add contact
+     * add contact
+     *
      * @param view
      */
     public void addContact(View view) {
@@ -141,7 +141,6 @@ public class AddContactActivity extends BaseActivity {
             new EaseAlertDialog(this, R.string.This_user_is_already_your_friend).show();
             return;
         }
-
 
 
         new Thread(new Runnable() {
@@ -172,15 +171,17 @@ public class AddContactActivity extends BaseActivity {
     }
 
 
-    @OnClick({R.id.iv_back, R.id.tvRig})
+    @OnClick({R.id.iv_back, R.id.btn_rig})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
                 finish();
                 break;
-            case R.id.tvRig:
+            case R.id.btn_rig:
                 searchContact();
                 break;
         }
     }
+
+
 }

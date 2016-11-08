@@ -71,7 +71,7 @@ import cn.ucai.superwechat.widget.DMTabHost;
 import cn.ucai.superwechat.widget.MFViewPager;
 
 @SuppressLint("NewApi")
-public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedChangeListener,ViewPager.OnPageChangeListener{
+public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedChangeListener, ViewPager.OnPageChangeListener {
 
     protected static final String TAG = "MainActivity";
     //	// textview for unread message count
@@ -86,14 +86,17 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 //	private int currentTabIndex;
     // user logged into another device
 
-    TextView mtvLeft;
-    ImageView mivadd;
+
     @InjectView(R.id.main_DMTH)
     DMTabHost mtbhost;
     @InjectView(R.id.main_MFVP)
     MFViewPager mfvpager;
     // user account was removed
     public boolean isConflict = false;
+    @InjectView(R.id.ivAdd)
+    ImageView mivAdd;
+    @InjectView(R.id.tvLeft)
+    TextView tvLeft;
     private boolean isCurrentAccountRemoved = false;
     MainTabAdpter madpter;
 
@@ -173,10 +176,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         }
     }
 
-    @OnClick(R.id.ivAdd)
-    public void ShowPopup(View view){
-        mtitlepopup.show(findViewById(R.id.layout_title));
-    }
+
 
     private void savePower() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -218,34 +218,36 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 //		mTabs[2] = (Button) findViewById(R.id.btn_setting);
 //		// select first tab
 //		mTabs[0].setSelected(true);
-        mivadd= (ImageView) findViewById(R.id.ivAdd);
-        mtvLeft= (TextView) findViewById(R.id.tvLeft);
-        mtvLeft.setVisibility(View.VISIBLE);
-        mivadd.setVisibility(View.VISIBLE);
-        madpter= new MainTabAdpter(getSupportFragmentManager());
+
+
+        mivAdd.setVisibility(View.VISIBLE);
+        tvLeft.setVisibility(View.VISIBLE);
+        tvLeft.setText(getString(R.string.wechat_left));
+        madpter = new MainTabAdpter(getSupportFragmentManager());
         mfvpager.setAdapter(madpter);
         mfvpager.setOffscreenPageLimit(4);
         madpter.clear();
-        madpter.addFragment(new ConversationListFragment(),getString(R.string.app_name));
-        madpter.addFragment(new ContactListFragment(),getString(R.string.contacts));
-        madpter.addFragment(new DiscoverFragment(),getString(R.string.discover));
-       // madpter.addFragment(new SettingsActivity(),getString(R.string.me));
-        madpter.addFragment(new ProfileFragment(),getString(R.string.me));
+        madpter.addFragment(new ConversationListFragment(), getString(R.string.app_name));
+        madpter.addFragment(new ContactListFragment(), getString(R.string.contacts));
+        madpter.addFragment(new DiscoverFragment(), getString(R.string.discover));
+        // madpter.addFragment(new SettingsActivity(),getString(R.string.me));
+        madpter.addFragment(new ProfileFragment(), getString(R.string.me));
         madpter.notifyDataSetChanged();
         mtbhost.setChecked(0);
         mtbhost.setOnCheckedChangeListener(this);
         mfvpager.setOnPageChangeListener(this);
-        mtitlepopup= new TitlePopup(this, ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        mtitlepopup.addAction(new ActionItem(this,R.string.menu_groupchat,R.drawable.icon_menu_group));
-        mtitlepopup.addAction(new ActionItem(this,R.string.add_friend,R.drawable.icon_menu_addfriend));
-        mtitlepopup.addAction(new ActionItem(this,R.string.menu_qrcode,R.drawable.icon_menu_sao));
-        mtitlepopup.addAction(new ActionItem(this,R.string.menu_money,R.drawable.icon_menu_money));
+        mtitlepopup = new TitlePopup(this, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mtitlepopup.addAction(new ActionItem(this, R.string.menu_groupchat, R.drawable.icon_menu_group));
+        mtitlepopup.addAction(new ActionItem(this, R.string.add_friend, R.drawable.icon_menu_addfriend));
+        mtitlepopup.addAction(new ActionItem(this, R.string.menu_qrcode, R.drawable.icon_menu_sao));
+        mtitlepopup.addAction(new ActionItem(this, R.string.menu_money, R.drawable.icon_menu_money));
         mtitlepopup.setItemOnClickListener(mOnClickListener);
     }
+
     TitlePopup.OnItemOnClickListener mOnClickListener = new TitlePopup.OnItemOnClickListener() {
         @Override
         public void onItemClick(ActionItem item, int position) {
-            switch (position){
+            switch (position) {
                 case 0:
                     break;
                 case 1:
@@ -359,8 +361,8 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 
     @Override
     public void onCheckedChange(int checkedPosition, boolean byUser) {
-        mfvpager.setCurrentItem(checkedPosition,false);
-      //  mtbhost.setChecked(checkedPosition);
+        mfvpager.setCurrentItem(checkedPosition, false);
+        //  mtbhost.setChecked(checkedPosition);
     }
 
     @Override
@@ -376,6 +378,11 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    @OnClick(R.id.ivAdd)
+    public void onClick() {
+        mtitlepopup.show(findViewById(R.id.layout_main_title));
     }
 
     public class MyContactListener implements EMContactListener {

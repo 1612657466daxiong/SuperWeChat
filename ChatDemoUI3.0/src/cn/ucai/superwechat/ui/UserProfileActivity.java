@@ -380,7 +380,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
             File file = new File(ptah);
             try {
                 BufferedOutputStream bos =new BufferedOutputStream(new FileOutputStream(file));
-                bitmap.compress(Bitmap.CompressFormat.PNG,100,bos);
+                bitmap.compress(Bitmap.CompressFormat.JPEG,100,bos);
                 bos.flush();
                 bos.close();
             } catch (IOException e) {

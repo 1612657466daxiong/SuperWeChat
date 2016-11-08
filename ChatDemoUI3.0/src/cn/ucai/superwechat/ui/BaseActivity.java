@@ -44,4 +44,6 @@ public class BaseActivity extends EaseBaseActivity {
         MobclickAgent.onPause(this);
     }
 
+
+
 }
