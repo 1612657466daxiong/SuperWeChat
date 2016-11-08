@@ -3,8 +3,12 @@ package cn.ucai.superwechat.utils;
 import android.app.Activity;
 import android.content.Intent;
 
+import com.hyphenate.easeui.domain.User;
+
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.ui.AddContactActivity;
+import cn.ucai.superwechat.ui.AddFrinendActivity;
+import cn.ucai.superwechat.ui.FriendProfileActivity;
 import cn.ucai.superwechat.ui.LoginActivity;
 import cn.ucai.superwechat.ui.MainActivity;
 import cn.ucai.superwechat.ui.RegisterActivity;
@@ -15,6 +19,9 @@ import cn.ucai.superwechat.ui.UserProfileActivity;
  * Created by Administrator on 2016/11/1.
  */
 public class MFGT {
+    public static void finish(Activity context){
+        context.finish();
+    }
     public static void startActivity(Activity  context, Intent intent){
         context.startActivity(intent);
         context.overridePendingTransition(R.anim.push_left_in,R.anim.push_right_out);
@@ -42,5 +49,10 @@ public class MFGT {
         startActivity(context,intent);
     }
 
+    public static void gotoaddfriendActivity(Activity context,String username){
+        Intent intent = new Intent(context, AddFrinendActivity.class);
+        intent.putExtra("UserName",username);
+        startActivity(context,intent);
+    }
 
 }

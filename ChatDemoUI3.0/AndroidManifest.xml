@@ -319,6 +319,18 @@
             android:screenOrientation="behind"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <!-- 红包相关Activity end -->
+        <activity android:name="cn.ucai.superwechat.ui.ChoseActivity"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity android:name="cn.ucai.superwechat.ui.SettingsActivity"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity android:name="cn.ucai.superwechat.ui.AddFrinendActivity"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity android:name="cn.ucai.superwechat.ui.FriendProfileActivity"
+            android:theme="@style/AppTheme">
+        </activity>
 
 
         <!-- 开机自启动服务 -->
@@ -470,12 +482,7 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="3ecea51f560650b1ed8a4b99808f52e8" />
 
-        <activity android:name="cn.ucai.superwechat.ui.ChoseActivity"
-            android:theme="@style/AppTheme">
-        </activity>
-        <activity android:name="cn.ucai.superwechat.ui.SettingsActivity"
-            android:theme="@style/AppTheme">
-        </activity>
+
     </application>
 
 </manifest>

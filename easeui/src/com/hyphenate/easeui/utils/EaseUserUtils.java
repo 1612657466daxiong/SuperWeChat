@@ -1,5 +1,6 @@
 package com.hyphenate.easeui.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.widget.ImageView;
@@ -123,6 +124,9 @@ public class EaseUserUtils {
         String username = EMClient.getInstance().getCurrentUser();
         setAppUserName("微信号：",username,textView);
     }
+    public static void setAppUserNameWithNum(String username,TextView textView) {
+        setAppUserName("微信号：",username,textView);
+    }
     public static void setCurrentAppUserName(TextView textView) {
         String username = EMClient.getInstance().getCurrentUser();
         setAppUserName("",username,textView);
@@ -132,4 +136,11 @@ public class EaseUserUtils {
     }
 
 
+    public static void setCurrentAppUserAvatar(Activity activity, String username, ImageView imageView) {
+        setAppUserAvatar(activity,username,imageView);
+    }
+
+    public static void setCurrentAppUserNick(String username, TextView textView) {
+        setAppUserNick(username,textView);
+    }
 }

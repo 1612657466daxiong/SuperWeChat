@@ -24,7 +24,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.widget.EaseAlertDialog;
 
 import butterknife.ButterKnife;
@@ -32,6 +34,12 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatHelper;
+import cn.ucai.superwechat.bean.Result;
+import cn.ucai.superwechat.net.NetDao;
+import cn.ucai.superwechat.utils.CommonUtils;
+import cn.ucai.superwechat.utils.L;
+import cn.ucai.superwechat.utils.MFGT;
+import cn.ucai.superwechat.utils.OkHttpUtils;
 
 
 public class AddContactActivity extends BaseActivity {
@@ -46,6 +54,7 @@ public class AddContactActivity extends BaseActivity {
 
     private String toAddUsername;
     private ProgressDialog progressDialog;
+    private final String TAG=AddContactActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +83,43 @@ public class AddContactActivity extends BaseActivity {
             return;
         }
 
-            progressDialog = new ProgressDialog(this);
-            String stri = getResources().getString(R.string.addcontact_search);
-            progressDialog.setMessage(stri);
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.show();
-        //TODO 搜索好友代码未完
+        progressDialog = new ProgressDialog(this);
+        String stri = getResources().getString(R.string.addcontact_search);
+        progressDialog.setMessage(stri);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        searchAppUser();
+    }
+
+    private void searchAppUser() {
+        NetDao.searchuser(this, toAddUsername, new OkHttpUtils.OnCompleteListener<Result>() {
+            @Override
+            public void onSuccess(Result result) {
+                progressDialog.dismiss();
+                if (result!=null){
+                    if (result.isRetMsg()){
+                        Gson gson = new Gson();
+                        User user = gson.fromJson(result.getRetData().toString(), User.class);
+                        if (user!=null){
+                            MFGT.gotofriendactivity(AddContactActivity.this,user);
+                        }else {
+                            CommonUtils.showShortToast(R.string.friend_not_find);
+                        }
+                    }else {
+                        CommonUtils.showShortToast(R.string.search_failed);
+                    }
+                }else {
+                    CommonUtils.showShortToast(R.string.search_failed);
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                L.e(TAG,"error="+error);
+                progressDialog.dismiss();
+                CommonUtils.showShortToast(R.string.search_failed);
+            }
+        });
     }
 
     /**
