@@ -1,5 +1,6 @@
 package cn.ucai.superwechat.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
@@ -86,6 +87,8 @@ public class FriendProfileActivity extends BaseActivity {
                 MFGT.gotoaddfriendActivity(this,user.getMUserName());
                 break;
             case R.id.bt_friend_sendmessage:
+                //startActivity(new Intent(this, ChatActivity.class).putExtra("userId", user.getMUserName()));
+                MFGT.gotochat(this,user.getMUserName());
                 break;
             case R.id.bt_friend_shiping:
                 break;
