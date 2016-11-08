@@ -226,9 +226,6 @@ public class ContactListFragment extends EaseContactListFragment {
                 e.printStackTrace();
             }
 			return true;
-		}else if(item.getItemId() == R.id.add_to_blacklist){
-			moveToBlacklist(toBeProcessUsername);
-			return true;
 		}
 		return super.onContextItemSelected(item);
 	}

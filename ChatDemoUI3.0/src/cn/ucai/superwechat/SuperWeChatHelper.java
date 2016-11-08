@@ -654,6 +654,25 @@ public class SuperWeChatHelper {
             userDao.deleteContact(username);
             inviteMessgeDao.deleteMessage(username);
 
+            Map<String, User> localAppUsers= getappContactList();
+            if (localAppUsers.containsKey(username)){
+                localAppUsers.remove(username);
+                NetDao.deletecontact(appContext, EMClient.getInstance().getCurrentUser(), username, new OkHttpUtils.OnCompleteListener<Result>() {
+                    @Override
+                    public void onSuccess(Result result) {
+                        if (result!=null){
+                            if (result.isRetMsg()){
+                                broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+
+                    }
+                });
+            }
             broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
         }
 
