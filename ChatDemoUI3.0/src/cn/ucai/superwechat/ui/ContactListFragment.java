@@ -28,7 +28,8 @@ import cn.ucai.superwechat.utils.CommonUtils;
 import cn.ucai.superwechat.utils.MFGT;
 import cn.ucai.superwechat.utils.OkHttpUtils;
 import cn.ucai.superwechat.widget.ContactItemView;
-import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.domain.User;
+import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.ui.EaseContactListFragment;
 import com.hyphenate.easeui.utils.EaseUserUtils;
 import com.hyphenate.util.EMLog;
@@ -83,10 +84,10 @@ public class ContactListFragment extends EaseContactListFragment {
     
     @Override
     public void refresh() {
-        Map<String, EaseUser> m = SuperWeChatHelper.getInstance().getContactList();
+        Map<String, User> m = SuperWeChatHelper.getInstance().getappContactList();
         if (m instanceof Hashtable<?, ?>) {
             //noinspection unchecked
-            m = (Map<String, EaseUser>) ((Hashtable<String, EaseUser>)m).clone();
+            m = (Map<String, User>) ((Hashtable<String, User>)m).clone();
         }
         setContactsMap(m);
         super.refresh();
@@ -115,9 +116,9 @@ public class ContactListFragment extends EaseContactListFragment {
             }
         });
         //设置联系人数据
-        Map<String, EaseUser> m = SuperWeChatHelper.getInstance().getContactList();
+        Map<String, User> m = SuperWeChatHelper.getInstance().getappContactList();
         if (m instanceof Hashtable<?, ?>) {
-            m = (Map<String, EaseUser>) ((Hashtable<String, EaseUser>)m).clone();
+            m = (Map<String, User>) ((Hashtable<String, User>)m).clone();
         }
         setContactsMap(m);
         super.setUpView();
@@ -125,9 +126,9 @@ public class ContactListFragment extends EaseContactListFragment {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                EaseUser user = (EaseUser)listView.getItemAtPosition(position);
+                User user = (User)listView.getItemAtPosition(position);
                 if (user != null) {
-                    String username = user.getUsername();
+                    String username = user.getMUserName();
                     // demo中直接进入聊天页面，实际一般是进入用户详情页
                     if (SuperWeChatHelper.getInstance().getappContactList().get(username)!=null) {
                         MFGT.gotofriendactivity(getActivity(), SuperWeChatHelper.getInstance().getappContactList().get(username));
@@ -215,8 +216,8 @@ public class ContactListFragment extends EaseContactListFragment {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-	    toBeProcessUser = (EaseUser) listView.getItemAtPosition(((AdapterContextMenuInfo) menuInfo).position);
-	    toBeProcessUsername = toBeProcessUser.getUsername();
+	    toBeProcessUser = (User) listView.getItemAtPosition(((AdapterContextMenuInfo) menuInfo).position);
+	    toBeProcessUsername = toBeProcessUser.getMUserName();
 		getActivity().getMenuInflater().inflate(R.menu.em_context_contact_list, menu);
 	}
 
@@ -228,7 +229,7 @@ public class ContactListFragment extends EaseContactListFragment {
                 deleteContact(toBeProcessUser);
                 // remove invitation message
                 InviteMessgeDao dao = new InviteMessgeDao(getActivity());
-                dao.deleteMessage(toBeProcessUser.getUsername());
+                dao.deleteMessage(toBeProcessUser.getMUserName());
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -244,7 +245,7 @@ public class ContactListFragment extends EaseContactListFragment {
 	 * 
 	 * @param tobeDeleteUser
 	 */
-	public void deleteContact(final EaseUser tobeDeleteUser) {
+	public void deleteContact(final User tobeDeleteUser) {
 		String st1 = getResources().getString(R.string.deleting);
 		final String st2 = getResources().getString(R.string.Delete_failed);
 		final ProgressDialog pd = new ProgressDialog(getActivity());
@@ -254,17 +255,15 @@ public class ContactListFragment extends EaseContactListFragment {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					EMClient.getInstance().contactManager().deleteContact(tobeDeleteUser.getUsername());
-                    NetDao.deletecontact(getActivity(), EMClient.getInstance().getCurrentUser(), tobeDeleteUser.getUsername(), new OkHttpUtils.OnCompleteListener<Result>() {
+					EMClient.getInstance().contactManager().deleteContact(tobeDeleteUser.getMUserName());
+                    NetDao.deletecontact(getActivity(), EMClient.getInstance().getCurrentUser(), tobeDeleteUser.getMUserName(), new OkHttpUtils.OnCompleteListener<Result>() {
                         @Override
                         public void onSuccess(Result result) {
                             if (result!=null){
                                 if (result.isRetMsg()){
                                     // remove user from memory and database
                                     UserDao dao = new UserDao(getActivity());
-                                    dao.deleteContact(tobeDeleteUser.getUsername());
-                                    SuperWeChatHelper.getInstance().getContactList().remove(tobeDeleteUser.getUsername());
-                                    SuperWeChatHelper.getInstance().deleteappContact(tobeDeleteUser.getUsername());
+                                    SuperWeChatHelper.getInstance().deleteappContact(tobeDeleteUser.getMUserName());
                                 }
                             }
                         }
