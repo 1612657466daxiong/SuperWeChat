@@ -84,8 +84,8 @@ public class EaseContactAdapter extends ArrayAdapter<User> implements SectionInd
             holder.headerView.setVisibility(View.GONE);
         }
 
-        EaseUserUtils.setUserNick(username, holder.nameView);
-        EaseUserUtils.setUserAvatar(getContext(), username, holder.avatar);
+        EaseUserUtils.setAppUserNick(username, holder.nameView);
+        EaseUserUtils.setAppUserAvatar(getContext(), username, holder.avatar);
 
 
         if(primaryColor != 0)
@@ -177,8 +177,8 @@ public class EaseContactAdapter extends ArrayAdapter<User> implements SectionInd
                 for(int i=0;i<count;i++){
                     final User user = mOriginalList.get(i);
                     String username = user.getMUserName();
-
-                    if(username.startsWith(prefixString)){
+                    String nick = user.getMUserNick();
+                    if(username.contains(prefixString)  || nick.contains(prefixString)){
                         newValues.add(user);
                     }
                     else{
