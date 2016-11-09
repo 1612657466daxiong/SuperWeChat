@@ -66,6 +66,8 @@ import cn.ucai.superwechat.dialog.TitleMenu.ActionItem;
 import cn.ucai.superwechat.dialog.TitleMenu.TitlePopup;
 import cn.ucai.superwechat.runtimepermissions.PermissionsManager;
 import cn.ucai.superwechat.runtimepermissions.PermissionsResultAction;
+import cn.ucai.superwechat.utils.I;
+import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.MFGT;
 import cn.ucai.superwechat.widget.DMTabHost;
 import cn.ucai.superwechat.widget.MFViewPager;
@@ -85,6 +87,14 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 //	private int index;
 	private int currentTabIndex;
     // user logged into another device
+    private AlertDialog.Builder conflictBuilder;
+    private AlertDialog.Builder accountRemovedBuilder;
+    private boolean isConflictDialogShow;
+    private boolean isAccountRemovedDialogShow;
+    private BroadcastReceiver internalDebugReceiver;
+    private ConversationListFragment conversationListFragment;
+    private BroadcastReceiver broadcastReceiver;
+    private LocalBroadcastManager broadcastManager;
 
 
     @InjectView(R.id.main_DMTH)
@@ -122,6 +132,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         // runtime permission for android 6.0, just require all permissions here for simple
         requestPermissions();
         contactListFragment = new ContactListFragment();
+        conversationListFragment = new ConversationListFragment();
         initView();
 
         umeng();
@@ -131,7 +142,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
 
         inviteMessgeDao = new InviteMessgeDao(this);
         UserDao userDao = new UserDao(this);
-//		conversationListFragment = new ConversationListFragment();
+
 
 //		SettingsFragment settingFragment = new SettingsFragment();
 //		fragments = new Fragment[] { conversationListFragment, contactListFragment, settingFragment};
@@ -227,7 +238,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         mfvpager.setAdapter(madpter);
         mfvpager.setOffscreenPageLimit(4);
         madpter.clear();
-        madpter.addFragment(new ConversationListFragment(), getString(R.string.app_name));
+        madpter.addFragment(conversationListFragment, getString(R.string.app_name));
         madpter.addFragment(contactListFragment, getString(R.string.contacts));
         madpter.addFragment(new DiscoverFragment(), getString(R.string.discover));
         // madpter.addFragment(new SettingsActivity(),getString(R.string.me));
@@ -304,12 +315,12 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
             public void run() {
                 // refresh unread count
                 updateUnreadLabel();
-//				if (currentTabIndex == 0) {
-//					// refresh conversation list
-//					if (conversationListFragment != null) {
-//						conversationListFragment.refresh();
-//					}
-//				}
+				if (currentTabIndex == 0) {
+					// refresh conversation list
+					if (conversationListFragment != null) {
+						conversationListFragment.refresh();
+					}
+				}
             }
         });
     }
@@ -332,16 +343,16 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
                 updateUnreadLabel();
                 updateUnreadAddressLable();
 //                if (currentTabIndex == 0) {
-//                    // refresh conversation list
-//                    if (conversationListFragment != null) {
-//                        conversationListFragment.refresh();
-//                    }
+                    // refresh conversation list
+                    if (conversationListFragment != null) {
+                        conversationListFragment.refresh();
+                    }
 //                } else
-                  if (currentTabIndex == 1) {
+//                  if (currentTabIndex == 1) {
                     if(contactListFragment != null) {
                         contactListFragment.refresh();
                     }
-                }
+//                }
                 String action = intent.getAction();
                 if (action.equals(Constant.ACTION_GROUP_CHANAGED)) {
                     if (EaseCommonUtils.getTopActivity(MainActivity.this).equals(GroupsActivity.class.getName())) {
@@ -544,14 +555,7 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
         return super.onKeyDown(keyCode, event);
     }
 
-    private AlertDialog.Builder conflictBuilder;
-    private AlertDialog.Builder accountRemovedBuilder;
-    private boolean isConflictDialogShow;
-    private boolean isAccountRemovedDialogShow;
-    private BroadcastReceiver internalDebugReceiver;
-    private ConversationListFragment conversationListFragment;
-    private BroadcastReceiver broadcastReceiver;
-    private LocalBroadcastManager broadcastManager;
+
 
     /**
      * show the dialog when user logged into another device
@@ -632,6 +636,11 @@ public class MainActivity extends BaseActivity implements DMTabHost.OnCheckedCha
             showConflictDialog();
         } else if (intent.getBooleanExtra(Constant.ACCOUNT_REMOVED, false) && !isAccountRemovedDialogShow) {
             showAccountRemovedDialog();
+        }
+        boolean flag = getIntent().getBooleanExtra(I.ACTION_BACKMSG_CANVERS, false);
+        L.e(TAG,"onResume "+flag);
+        if (flag){
+            mtbhost.setChecked(0);
         }
     }
 

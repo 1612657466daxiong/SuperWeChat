@@ -263,9 +263,8 @@ public class ContactListFragment extends EaseContactListFragment {
                                     // remove user from memory and database
                                     UserDao dao = new UserDao(getActivity());
                                     dao.deleteContact(tobeDeleteUser.getUsername());
-
                                     SuperWeChatHelper.getInstance().getContactList().remove(tobeDeleteUser.getUsername());
-                                    SuperWeChatHelper.getInstance().getappContactList().remove(tobeDeleteUser.getUsername());
+                                    SuperWeChatHelper.getInstance().deleteappContact(tobeDeleteUser.getUsername());
                                 }
                             }
                         }
@@ -275,8 +274,6 @@ public class ContactListFragment extends EaseContactListFragment {
 
                         }
                     });
-
-
 					getActivity().runOnUiThread(new Runnable() {
 						public void run() {
 							pd.dismiss();
@@ -292,9 +289,7 @@ public class ContactListFragment extends EaseContactListFragment {
 							Toast.makeText(getActivity(), st2 + e.getMessage(), Toast.LENGTH_LONG).show();
 						}
 					});
-
 				}
-
 			}
 		}).start();
 

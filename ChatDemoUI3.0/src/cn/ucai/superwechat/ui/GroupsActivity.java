@@ -147,6 +147,7 @@ public class GroupsActivity extends BaseActivity {
 	public void onResume() {
         refresh();
 		super.onResume();
+
 	}
 	
 	private void refresh(){
