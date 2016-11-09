@@ -37,6 +37,7 @@ import com.hyphenate.EMError;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.R;
 import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.widget.EaseContactList;
 import com.hyphenate.exceptions.HyphenateException;
@@ -68,7 +69,7 @@ public class EaseContactListFragment extends EaseBaseFragment {
     protected FrameLayout contentContainer;
     
     private Map<String, EaseUser> contactsMap;
-
+    private List<User> appcontactlist;
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

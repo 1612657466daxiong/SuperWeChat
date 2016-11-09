@@ -20,12 +20,17 @@ import com.hyphenate.chat.EMClient;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.SuperWeChatHelper.DataSyncListener;
 import cn.ucai.superwechat.R;
+import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.db.InviteMessgeDao;
 import cn.ucai.superwechat.db.UserDao;
+import cn.ucai.superwechat.net.NetDao;
+import cn.ucai.superwechat.utils.CommonUtils;
 import cn.ucai.superwechat.utils.MFGT;
+import cn.ucai.superwechat.utils.OkHttpUtils;
 import cn.ucai.superwechat.widget.ContactItemView;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.ui.EaseContactListFragment;
+import com.hyphenate.easeui.utils.EaseUserUtils;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.NetUtils;
 
@@ -124,7 +129,9 @@ public class ContactListFragment extends EaseContactListFragment {
                 if (user != null) {
                     String username = user.getUsername();
                     // demo中直接进入聊天页面，实际一般是进入用户详情页
-                    MFGT.gotofriendactivity(getActivity(),SuperWeChatHelper.getInstance().getappContactList().get(username));
+                    if (SuperWeChatHelper.getInstance().getappContactList().get(username)!=null) {
+                        MFGT.gotofriendactivity(getActivity(), SuperWeChatHelper.getInstance().getappContactList().get(username));
+                    }
                   //  startActivity(new Intent(getActivity(), ChatActivity.class).putExtra("userId", username));
                 }
             }
@@ -222,6 +229,7 @@ public class ContactListFragment extends EaseContactListFragment {
                 // remove invitation message
                 InviteMessgeDao dao = new InviteMessgeDao(getActivity());
                 dao.deleteMessage(toBeProcessUser.getUsername());
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -247,10 +255,28 @@ public class ContactListFragment extends EaseContactListFragment {
 			public void run() {
 				try {
 					EMClient.getInstance().contactManager().deleteContact(tobeDeleteUser.getUsername());
-					// remove user from memory and database
-					UserDao dao = new UserDao(getActivity());
-					dao.deleteContact(tobeDeleteUser.getUsername());
-					SuperWeChatHelper.getInstance().getContactList().remove(tobeDeleteUser.getUsername());
+                    NetDao.deletecontact(getActivity(), EMClient.getInstance().getCurrentUser(), tobeDeleteUser.getUsername(), new OkHttpUtils.OnCompleteListener<Result>() {
+                        @Override
+                        public void onSuccess(Result result) {
+                            if (result!=null){
+                                if (result.isRetMsg()){
+                                    // remove user from memory and database
+                                    UserDao dao = new UserDao(getActivity());
+                                    dao.deleteContact(tobeDeleteUser.getUsername());
+
+                                    SuperWeChatHelper.getInstance().getContactList().remove(tobeDeleteUser.getUsername());
+                                    SuperWeChatHelper.getInstance().getappContactList().remove(tobeDeleteUser.getUsername());
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onError(String error) {
+
+                        }
+                    });
+
+
 					getActivity().runOnUiThread(new Runnable() {
 						public void run() {
 							pd.dismiss();

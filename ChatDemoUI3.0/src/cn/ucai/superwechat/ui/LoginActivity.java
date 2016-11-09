@@ -26,6 +26,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -44,12 +46,12 @@ import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.db.SuperWeChatDBManager;
 import cn.ucai.superwechat.db.UserDao;
 import cn.ucai.superwechat.net.NetDao;
+import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.MD5;
 import cn.ucai.superwechat.utils.OkHttpUtils;
 
 /**
  * Login screen
- *
  */
 public class LoginActivity extends BaseActivity {
     private static final String TAG = "LoginActivity";
@@ -60,9 +62,13 @@ public class LoginActivity extends BaseActivity {
     EditText passwordEditText;
     @InjectView(R.id.login_btnlogin)
     Button loginBtnlogin;
+    @InjectView(R.id.iv_back)
+    ImageView mivBack;
+    @InjectView(R.id.tv_title)
+    TextView mtvTitle;
 
-   // private EditText usernameEditText;
-   // private EditText passwordEditText;
+    // private EditText usernameEditText;
+    // private EditText passwordEditText;
 
     private boolean progressShow;
     private boolean autoLogin = false;
@@ -82,10 +88,11 @@ public class LoginActivity extends BaseActivity {
         }
         setContentView(R.layout.em_activity_login);
         ButterKnife.inject(this);
-        mcontext=this;
+        mcontext = this;
+        initView();
 
-      //  usernameEditText = (EditText) findViewById(R.id.username);
-       // passwordEditText = (EditText) findViewById(R.id.password);
+        //  usernameEditText = (EditText) findViewById(R.id.username);
+        // passwordEditText = (EditText) findViewById(R.id.password);
 
         // if user changed, clear the password
         usernameEditText.addTextChangedListener(new TextWatcher() {
@@ -109,13 +116,24 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
+    private void initView() {
+        if (SuperWeChatHelper.getInstance().getCurrentUsernName() != null) {
+            usernameEditText.setText(SuperWeChatHelper.getInstance().getCurrentUsernName());
+        }
+        mivBack.setVisibility(View.VISIBLE);
+        mtvTitle.setVisibility(View.VISIBLE);
+        mtvTitle.setText(R.string.login);
+    }
+
     /**
      * login
      *
      * @param view
      */
-    @OnClick(R.id.login_btnlogin)
+    @OnClick({R.id.login_btnlogin,R.id.iv_back})
     public void login(View view) {
+        switch (view.getId()){
+            case R.id.login_btnlogin:
         if (!EaseCommonUtils.isNetWorkConnected(this)) {
             Toast.makeText(this, R.string.network_isnot_available, Toast.LENGTH_SHORT).show();
             return;
@@ -161,7 +179,7 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onSuccess() {
                 Log.d(TAG, "login: onSuccess");
-                loginAppServer(currentUsername,currentPassword);
+                loginAppServer(currentUsername, currentPassword);
             }
 
             @Override
@@ -184,23 +202,30 @@ public class LoginActivity extends BaseActivity {
                 });
             }
         });
+                break;
+            case R.id.iv_back:
+                finish();
+                break;
+    }
+
     }
 
     private void loginAppServer(String currentUsername, String currentPassword) {
         NetDao.login(this, currentUsername, currentPassword, new OkHttpUtils.OnCompleteListener<Result>() {
             @Override
             public void onSuccess(Result result) {
-                Log.i(TAG,"loginAppServer onSuccess");
-                if (result!=null){
-                    if (result.isRetMsg()){
+                Log.i(TAG, "loginAppServer onSuccess");
+                if (result != null) {
+                    if (result.isRetMsg()) {
                         Gson gson = new Gson();
                         User user = gson.fromJson(result.getRetData().toString(), User.class);
                         UserDao dao = new UserDao(mcontext);
                         dao.saveUser(user);
-                        SuperWeChatHelper.getInstance().setCurrentUser(user);
+                        L.e(TAG,"user-----"+user.getMUserName()+":"+user.getMUserNick());
+                        SuperWeChatHelper.getInstance().saveappContact(user);
                     }
                     loginsuccess();
-                }else {
+                } else {
                     pd.dismiss();
                 }
             }
@@ -254,7 +279,7 @@ public class LoginActivity extends BaseActivity {
         if (autoLogin) {
             return;
         }
-        if (SuperWeChatHelper.getInstance().getCurrentUsernName()!=null){
+        if (SuperWeChatHelper.getInstance().getCurrentUsernName() != null) {
             usernameEditText.setText(SuperWeChatHelper.getInstance().getCurrentUsernName());
         }
     }
@@ -262,7 +287,7 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (pd!=null){
+        if (pd != null) {
             pd.dismiss();
         }
     }

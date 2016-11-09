@@ -49,6 +49,7 @@ public class FriendProfileActivity extends BaseActivity {
         user = (User) getIntent().getSerializableExtra("User");
         if (user == null) {
             finish();
+            return;
         }
         initView();
     }

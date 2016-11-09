@@ -648,31 +648,13 @@ public class SuperWeChatHelper {
         }
 
         @Override
-        public void onContactDeleted(String username) {
+        public void onContactDeleted(final String username) {
             Map<String, EaseUser> localUsers = SuperWeChatHelper.getInstance().getContactList();
             localUsers.remove(username);
             userDao.deleteContact(username);
             inviteMessgeDao.deleteMessage(username);
 
-            Map<String, User> localAppUsers= getappContactList();
-            if (localAppUsers.containsKey(username)){
-                localAppUsers.remove(username);
-                NetDao.deletecontact(appContext, EMClient.getInstance().getCurrentUser(), username, new OkHttpUtils.OnCompleteListener<Result>() {
-                    @Override
-                    public void onSuccess(Result result) {
-                        if (result!=null){
-                            if (result.isRetMsg()){
-                                broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
-                            }
-                        }
-                    }
 
-                    @Override
-                    public void onError(String error) {
-
-                    }
-                });
-            }
             broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
         }
 
@@ -712,7 +694,28 @@ public class SuperWeChatHelper {
             Log.d(TAG, username + "accept your request");
             msg.setStatus(InviteMessage.InviteMesageStatus.BEAGREED);
             notifyNewInviteMessage(msg);
-            broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
+            Map<String, User> localAppUsers= getappContactList();
+            if (!localAppUsers.containsKey(username)) {
+                NetDao.addcontact(appContext, EMClient.getInstance().getCurrentUser(), username, new OkHttpUtils.OnCompleteListener<Result>() {
+                    @Override
+                    public void onSuccess(Result result) {
+                        if (result != null) {
+                            if (result.isRetMsg()) {
+                                Gson gson = new Gson();
+                                User u = gson.fromJson(result.getRetData().toString(), User.class);
+                                saveappContact(u);
+                                broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+
+                    }
+                });
+            }
+
         }
 
         @Override
@@ -938,11 +941,11 @@ public class SuperWeChatHelper {
      * save single contact 
      */
     public void saveContact(EaseUser user){
-    	contactList.put(user.getUsername(), user);
+    	getContactList().put(user.getUsername(), user);
     	demoModel.saveContact(user);
     }
     public void saveappContact(User user){
-        appContactList.put(user.getMUserName(), user);
+        getappContactList().put(user.getMUserName(), user);
         demoModel.saveAppContact(user);
     }
     

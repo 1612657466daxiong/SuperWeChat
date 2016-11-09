@@ -5,9 +5,10 @@
     android:background="#eff2f6"
     android:orientation="vertical" >
 
-
+<include android:id="@+id/layout_login_title" layout="@layout/view_layout_title"></include>
 
     <RelativeLayout
+        android:layout_below="@id/layout_login_title"
         android:id="@+id/login_top_layout"
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
