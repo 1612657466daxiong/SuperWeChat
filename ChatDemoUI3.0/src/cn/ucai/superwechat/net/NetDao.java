@@ -3,6 +3,7 @@ package cn.ucai.superwechat.net;
 import android.content.Context;
 
 import com.baidu.platform.comapi.map.C;
+import com.hyphenate.chat.EMGroup;
 
 import java.io.File;
 
@@ -90,6 +91,32 @@ public class NetDao {
                 .addParam(I.Contact.USER_NAME,username)
                 .targetClass(Result.class)
                 .execute(listener);
+    }
+
+    public static void creategroup2service(Context context,EMGroup emGroup,File file, OkHttpUtils.OnCompleteListener<Result>  listener){
+        OkHttpUtils<Result> utils = new OkHttpUtils<>(context);
+        utils.url(I.SERVER_ROOT+I.REQUEST_CREATE_GROUP)
+                .addParam(I.Group.HX_ID,emGroup.getGroupId())
+                .addParam(I.Group.NAME,emGroup.getGroupName())
+                .addParam(I.Group.DESCRIPTION,emGroup.getDescription())
+                .addParam(I.Group.OWNER,emGroup.getOwner())
+                .addParam(I.Group.IS_PUBLIC,String.valueOf(emGroup.isPublic()))
+                .addParam(I.Group.ALLOW_INVITES,String.valueOf(emGroup.isAllowInvites()))
+                .addFile2(file)
+                .targetClass(Result.class)
+                .post().execute(listener);
+    }
+    public static void creategroup2service(Context context,EMGroup emGroup, OkHttpUtils.OnCompleteListener<Result> listener){
+        OkHttpUtils<Result> utils = new OkHttpUtils<>(context);
+        utils.url(I.SERVER_ROOT+I.REQUEST_CREATE_GROUP)
+                .addParam(I.Group.HX_ID,emGroup.getGroupId())
+                .addParam(I.Group.NAME,emGroup.getGroupName())
+                .addParam(I.Group.DESCRIPTION,emGroup.getDescription())
+                .addParam(I.Group.OWNER,emGroup.getOwner())
+                .addParam(I.Group.IS_PUBLIC,String.valueOf(emGroup.isPublic()))
+                .addParam(I.Group.ALLOW_INVITES,String.valueOf(emGroup.isAllowInvites()))
+                .targetClass(Result.class)
+                .post().execute(listener);
     }
 
 
