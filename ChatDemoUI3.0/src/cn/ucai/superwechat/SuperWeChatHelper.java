@@ -1169,7 +1169,43 @@ public class SuperWeChatHelper {
        }
        
        isSyncingContactsWithServer = true;
-       
+       NetDao.downloadContactlist(appContext, EMClient.getInstance().getCurrentUser(), new OkHttpUtils.OnCompleteListener<Result>() {
+           @Override
+           public void onSuccess(Result result) {
+               if (result!=null){
+                   if (result.isRetMsg()){
+                       Gson gson = new Gson();
+                       User[] usersarray = gson.fromJson(result.getRetData().toString(), User[].class);
+                       ArrayList<User> users = ConvertUtils.array2List(usersarray);
+                       if(callback != null){
+                           callback.onSuccess(users);
+                       }
+                       Map<String, User> userlist = new HashMap<String, User>();
+                       for (User user : users) {
+                           EaseCommonUtils.setAppUserInitialLetter(user);
+                           userlist.put(user.getMUserName(),user);
+                       }
+                       // save the contact list to cache
+                       getappContactList().clear();
+                       getappContactList().putAll(userlist);
+                       // save the contact list to database
+                       UserDao dao = new UserDao(appContext);
+                       List<User> userlists = new ArrayList<User>(userlist.values());
+                       dao.saveAppContactList(userlists);
+                       broadcastManager.sendBroadcast(new Intent(Constant.ACTION_CONTACT_CHANAGED));
+                   }
+               }
+           }
+
+           @Override
+           public void onError(String error) {
+
+           }
+       });
+
+
+
+
        new Thread(){
            @Override
            public void run(){
@@ -1184,50 +1220,14 @@ public class SuperWeChatHelper {
                        notifyContactsSyncListener(false);
                        return;
                    }
-                   NetDao.downloadContactlist(appContext, EMClient.getInstance().getCurrentUser(), new OkHttpUtils.OnCompleteListener<Result>() {
-                       @Override
-                       public void onSuccess(Result result) {
-                           if (result!=null){
-                               if (result.isRetMsg()){
-                                   Gson gson = new Gson();
-                                   User[] usersarray = gson.fromJson(result.getRetData().toString(), User[].class);
-                                   ArrayList<User> users = ConvertUtils.array2List(usersarray);
-                                   if(callback != null){
-                                       callback.onSuccess(users);
-                                   }
+                   demoModel.setContactSynced(true);
+                   EMLog.d(TAG, "set contact syn status to true");
 
-                                   Map<String, User> userlist = new HashMap<String, User>();
-                                   for (User user : users) {
-                                       EaseCommonUtils.setAppUserInitialLetter(user);
-                                       userlist.put(user.getMUserName(),user);
-                                   }
-                                   // save the contact list to cache
-                                   getappContactList().clear();
-                                   getappContactList().putAll(userlist);
-                                   // save the contact list to database
-                                   UserDao dao = new UserDao(appContext);
-                                   List<User> userlists = new ArrayList<User>(userlist.values());
-                                   dao.saveAppContactList(userlists);
-                                   demoModel.setContactSynced(true);
-                                   EMLog.d(TAG, "set contact syn status to true");
+                   isContactsSyncedWithServer = true;
+                   isSyncingContactsWithServer = false;
 
-                                   isContactsSyncedWithServer = true;
-                                   isSyncingContactsWithServer = false;
-
-                                   //notify sync success
-                                   notifyContactsSyncListener(true);
-                               }
-                           }
-                       }
-
-                       @Override
-                       public void onError(String error) {
-
-                       }
-                   });
-
-
-
+                   //notify sync success
+                   notifyContactsSyncListener(true);
 
 
                } catch (Exception e) {

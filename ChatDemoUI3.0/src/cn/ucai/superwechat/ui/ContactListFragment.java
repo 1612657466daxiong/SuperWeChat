@@ -88,6 +88,7 @@ public class ContactListFragment extends EaseContactListFragment {
         if (m instanceof Hashtable<?, ?>) {
             //noinspection unchecked
             m = (Map<String, User>) ((Hashtable<String, User>)m).clone();
+           // m.remove(EMClient.getInstance().getCurrentUser());
         }
         setContactsMap(m);
         super.refresh();
