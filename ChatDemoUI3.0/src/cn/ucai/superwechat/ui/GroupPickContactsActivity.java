@@ -37,6 +37,7 @@ import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.widget.EaseSidebar;
 
+import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -67,9 +68,14 @@ public class GroupPickContactsActivity extends BaseActivity {
 		// get contact list
 		final List<User> alluserList = new ArrayList<User>();
 		for (User user : SuperWeChatHelper.getInstance().getappContactList().values()) {
-			if (!user.getMUserName().equals(Constant.NEW_FRIENDS_USERNAME) & !user.getMUserName().equals(Constant.GROUP_USERNAME) & !user.getMUserName().equals(Constant.CHAT_ROOM) & !user.getMUserName().equals(Constant.CHAT_ROBOT))
+			if (!user.getMUserName().equals(Constant.NEW_FRIENDS_USERNAME)
+					& !user.getMUserName().equals(Constant.GROUP_USERNAME)
+					& !user.getMUserName().equals(Constant.CHAT_ROOM)
+					& !user.getMUserName().equals(Constant.CHAT_ROBOT)
+					& !user.getMUserName().equals(EMClient.getInstance().getCurrentUser()))
 				alluserList.add(user);
 		}
+		alluserList.remove(EMClient.getInstance().getCurrentUser());
 		// sort the list
         Collections.sort(alluserList, new Comparator<User>() {
 
