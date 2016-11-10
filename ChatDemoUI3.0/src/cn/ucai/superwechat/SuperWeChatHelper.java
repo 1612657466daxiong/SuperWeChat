@@ -41,6 +41,8 @@ import cn.ucai.superwechat.ui.ChatActivity;
 import cn.ucai.superwechat.ui.MainActivity;
 import cn.ucai.superwechat.ui.VideoCallActivity;
 import cn.ucai.superwechat.ui.VoiceCallActivity;
+import cn.ucai.superwechat.utils.CommonUtils;
+import cn.ucai.superwechat.utils.ConvertUtils;
 import cn.ucai.superwechat.utils.OkHttpUtils;
 import cn.ucai.superwechat.utils.PreferenceManager;
 import com.hyphenate.easeui.controller.EaseUI;
@@ -982,7 +984,7 @@ public class SuperWeChatHelper {
 
         return appContactList;
     }
-    public void updateappContactList(List<User> contactInfoList) {
+    public void updateappContactList(ArrayList<User> contactInfoList) {
         for (User u : contactInfoList) {
             appContactList.put(u.getMUserName(), u);
         }
@@ -1161,7 +1163,7 @@ public class SuperWeChatHelper {
        }
    }
    
-   public void asyncFetchContactsFromServer(final EMValueCallBack<List<String>> callback){
+   public void asyncFetchContactsFromServer(final EMValueCallBack<ArrayList<User>> callback){
        if(isSyncingContactsWithServer){
            return;
        }
@@ -1171,9 +1173,10 @@ public class SuperWeChatHelper {
        new Thread(){
            @Override
            public void run(){
-               List<String> usernames = null;
+             //  List<String> usernames = null;
                try {
-                   usernames = EMClient.getInstance().contactManager().getAllContactsFromServer();
+               //    usernames = EMClient.getInstance().contactManager().getAllContactsFromServer();
+
                    // in case that logout already before server returns, we should return immediately
                    if(!isLoggedIn()){
                        isContactsSyncedWithServer = false;
@@ -1181,53 +1184,59 @@ public class SuperWeChatHelper {
                        notifyContactsSyncListener(false);
                        return;
                    }
-                  
-                   Map<String, EaseUser> userlist = new HashMap<String, EaseUser>();
-                   for (String username : usernames) {
-                       EaseUser user = new EaseUser(username);
-                       EaseCommonUtils.setUserInitialLetter(user);
-                       userlist.put(username, user);
-                   }
-                   // save the contact list to cache
-                   getContactList().clear();
-                   getContactList().putAll(userlist);
-                    // save the contact list to database
-                   UserDao dao = new UserDao(appContext);
-                   List<EaseUser> users = new ArrayList<EaseUser>(userlist.values());
-                   dao.saveContactList(users);
-
-                   demoModel.setContactSynced(true);
-                   EMLog.d(TAG, "set contact syn status to true");
-                   
-                   isContactsSyncedWithServer = true;
-                   isSyncingContactsWithServer = false;
-                   
-                   //notify sync success
-                   notifyContactsSyncListener(true);
-                   
-                   getUserProfileManager().asyncFetchContactInfosFromServer(usernames,new EMValueCallBack<List<EaseUser>>() {
-
+                   NetDao.downloadContactlist(appContext, EMClient.getInstance().getCurrentUser(), new OkHttpUtils.OnCompleteListener<Result>() {
                        @Override
-                       public void onSuccess(List<EaseUser> uList) {
-                           updateContactList(uList);
-                           getUserProfileManager().notifyContactInfosSyncListener(true);
+                       public void onSuccess(Result result) {
+                           if (result!=null){
+                               if (result.isRetMsg()){
+                                   Gson gson = new Gson();
+                                   User[] usersarray = gson.fromJson(result.getRetData().toString(), User[].class);
+                                   ArrayList<User> users = ConvertUtils.array2List(usersarray);
+                                   if(callback != null){
+                                       callback.onSuccess(users);
+                                   }
+
+                                   Map<String, User> userlist = new HashMap<String, User>();
+                                   for (User user : users) {
+                                       EaseCommonUtils.setAppUserInitialLetter(user);
+                                       userlist.put(user.getMUserName(),user);
+                                   }
+                                   // save the contact list to cache
+                                   getappContactList().clear();
+                                   getappContactList().putAll(userlist);
+                                   // save the contact list to database
+                                   UserDao dao = new UserDao(appContext);
+                                   List<User> userlists = new ArrayList<User>(userlist.values());
+                                   dao.saveAppContactList(userlists);
+                                   demoModel.setContactSynced(true);
+                                   EMLog.d(TAG, "set contact syn status to true");
+
+                                   isContactsSyncedWithServer = true;
+                                   isSyncingContactsWithServer = false;
+
+                                   //notify sync success
+                                   notifyContactsSyncListener(true);
+                               }
+                           }
                        }
 
                        @Override
-                       public void onError(int error, String errorMsg) {
+                       public void onError(String error) {
+
                        }
                    });
-                   if(callback != null){
-                       callback.onSuccess(usernames);
-                   }
-               } catch (HyphenateException e) {
+
+
+
+
+
+               } catch (Exception e) {
                    demoModel.setContactSynced(false);
                    isContactsSyncedWithServer = false;
                    isSyncingContactsWithServer = false;
                    notifyContactsSyncListener(false);
                    e.printStackTrace();
                    if(callback != null){
-                       callback.onError(e.getErrorCode(), e.toString());
                    }
                }
                

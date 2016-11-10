@@ -8,6 +8,7 @@ import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.SuperWeChatHelper.DataSyncListener;
 import cn.ucai.superwechat.utils.PreferenceManager;
 import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.domain.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,15 +66,15 @@ public class UserProfileManager {
 		}
 	}
 
-	public void asyncFetchContactInfosFromServer(List<String> usernames, final EMValueCallBack<List<EaseUser>> callback) {
+	public void asyncFetchContactInfosFromServer(ArrayList<User> usernames, final EMValueCallBack<ArrayList<User>> callback) {
 		if (isSyncingContactInfosWithServer) {
 			return;
 		}
 		isSyncingContactInfosWithServer = true;
-		ParseManager.getInstance().getContactInfos(usernames, new EMValueCallBack<List<EaseUser>>() {
+		ParseManager.getInstance().getContactInfos(usernames, new EMValueCallBack<ArrayList<User>>() {
 
 			@Override
-			public void onSuccess(List<EaseUser> value) {
+			public void onSuccess(ArrayList<User> value) {
 				isSyncingContactInfosWithServer = false;
 				// in case that logout already before server returns,we should
 				// return immediately

@@ -19,6 +19,8 @@ import java.util.Map;
 import android.content.Context;
 
 import cn.ucai.superwechat.domain.RobotUser;
+import cn.ucai.superwechat.net.NetDao;
+
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.domain.User;
 
@@ -64,6 +66,7 @@ public class UserDao {
 	public Map<String, User> getAppContactList() {
 
 		return SuperWeChatDBManager.getInstance().getAppContactList();
+
 	}
 
 	/**

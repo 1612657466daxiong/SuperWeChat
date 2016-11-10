@@ -43,6 +43,7 @@ public class SplashActivity extends BaseActivity {
 					long start = System.currentTimeMillis();
 					EMClient.getInstance().groupManager().loadAllGroups();
 					EMClient.getInstance().chatManager().loadAllConversations();
+					//SuperWeChatHelper.getInstance().getappContactList();
 					long costTime = System.currentTimeMillis() - start;
 					//wait
 					if (sleepTime - costTime > 0) {

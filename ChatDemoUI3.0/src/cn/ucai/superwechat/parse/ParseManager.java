@@ -6,6 +6,7 @@ import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.util.EMLog;
 import com.parse.FindCallback;
@@ -91,7 +92,7 @@ public class ParseManager {
 		return false;
 	}
 
-	public void getContactInfos(List<String> usernames, final EMValueCallBack<List<EaseUser>> callback) {
+	public void getContactInfos(ArrayList<User> usernames, final EMValueCallBack<ArrayList<User>> callback) {
 		ParseQuery<ParseObject> pQuery = ParseQuery.getQuery(CONFIG_TABLE_NAME);
 		pQuery.whereContainedIn(CONFIG_USERNAME, usernames);
 		pQuery.findInBackground(new FindCallback<ParseObject>() {
@@ -99,15 +100,15 @@ public class ParseManager {
 			@Override
 			public void done(List<ParseObject> arg0, ParseException arg1) {
 				if (arg0 != null) {
-					List<EaseUser> mList = new ArrayList<EaseUser>();
+					ArrayList<User> mList = new ArrayList<User>();
 					for (ParseObject pObject : arg0) {
-					    EaseUser user = new EaseUser(pObject.getString(CONFIG_USERNAME));
+					    User user = new User(pObject.getString(CONFIG_USERNAME));
 						ParseFile parseFile = pObject.getParseFile(CONFIG_AVATAR);
 						if (parseFile != null) {
-							user.setAvatar(parseFile.getUrl());
+							user.setMAvatarPath(parseFile.getUrl());
 						}
-						user.setNick(pObject.getString(CONFIG_NICK));
-						EaseCommonUtils.setUserInitialLetter(user);
+						user.setMUserNick(pObject.getString(CONFIG_NICK));
+						EaseCommonUtils.setAppUserInitialLetter(user);
 						mList.add(user);
 					}
 					callback.onSuccess(mList);
