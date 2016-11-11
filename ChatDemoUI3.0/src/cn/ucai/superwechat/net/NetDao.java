@@ -3,10 +3,12 @@ package cn.ucai.superwechat.net;
 import android.content.Context;
 
 import com.baidu.platform.comapi.map.C;
+import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMGroup;
 
 import java.io.File;
 
+import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.utils.I;
 import cn.ucai.superwechat.utils.MD5;
@@ -117,6 +119,22 @@ public class NetDao {
                 .addParam(I.Group.ALLOW_INVITES,String.valueOf(emGroup.isAllowInvites()))
                 .targetClass(Result.class)
                 .post().execute(listener);
+    }
+
+    public static void addmembers(Context context,EMGroup emGroup,OkHttpUtils.OnCompleteListener<Result> listener){
+        String memberArr = "";
+        for (String m :emGroup.getMembers()){
+            if (!m.equals(SuperWeChatHelper.getInstance().getCurrentUsernName())){
+                memberArr+=m+",";
+            }
+        }
+        memberArr=memberArr.substring(0,memberArr.length()-1);
+        OkHttpUtils<Result> utils = new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_ADD_GROUP_MEMBERS)
+                .addParam(I.Member.GROUP_HX_ID,emGroup.getGroupId())
+                .addParam(I.Member.USER_NAME,memberArr)
+                .targetClass(Result.class)
+                .execute(listener);
     }
 
 

@@ -85,6 +85,7 @@ public class NewGroupActivity extends BaseActivity {
     // private EditText groupNameEditText;
     private ProgressDialog progressDialog;
     File avatarfile=null;
+    EMGroup emGroup;
     // private EditText introductionEditText;
     // private CheckBox publibCheckBox;
     // private CheckBox memberCheckbox;
@@ -189,7 +190,7 @@ public class NewGroupActivity extends BaseActivity {
                         } else {
                             option.style = memberCheckbox.isChecked() ? EMGroupStyle.EMGroupStylePrivateMemberCanInvite : EMGroupStyle.EMGroupStylePrivateOnlyOwnerInvite;
                         }
-                        EMGroup emGroup = EMClient.getInstance().groupManager().createGroup(groupName, desc, members, reason, option);
+                        emGroup = EMClient.getInstance().groupManager().createGroup(groupName, desc, members, reason, option);
 
                         createGroupService(emGroup);
 
@@ -219,41 +220,59 @@ public class NewGroupActivity extends BaseActivity {
 
     private void createGroupService(EMGroup emGroup) {
         if (avatarfile==null){
-        NetDao.creategroup2service(this, emGroup, new OkHttpUtils.OnCompleteListener<Result>() {
+        NetDao.creategroup2service(this, emGroup,listener);
+        }else {
+            NetDao.creategroup2service(this, emGroup, avatarfile, listener);
+        }
+    }
+
+    OkHttpUtils.OnCompleteListener<Result> listener = new OkHttpUtils.OnCompleteListener<Result>() {
+        @Override
+        public void onSuccess(Result result) {
+            if (result!=null){
+                if (result.isRetMsg()){
+                    Gson gson = new Gson();
+                    GroupAvatar group = gson.fromJson(result.getRetData().toString(), GroupAvatar.class);
+                    if (emGroup!=null&&emGroup.getMembers()!=null&&emGroup.getMembers().size()>1){
+                        addGroupMembers();
+                    }else {
+                        creategroupsuccess();
+                    }
+                }else {
+                    progressDialog.dismiss();
+                    CommonUtils.showShortToast(R.string.Failed_to_create_groups);
+                }
+            }else {
+                progressDialog.dismiss();
+                CommonUtils.showShortToast(R.string.Failed_to_create_groups);
+            }
+        }
+
+        @Override
+        public void onError(String error) {
+            progressDialog.dismiss();
+            CommonUtils.showShortToast(R.string.Failed_to_create_groups);
+        }
+    };
+
+    private void addGroupMembers() {
+        NetDao.addmembers(this, emGroup, new OkHttpUtils.OnCompleteListener<Result>() {
             @Override
             public void onSuccess(Result result) {
-                afternetdaosuccess(result);
+                if (result!=null && result.isRetMsg()){
+                    creategroupsuccess();
+                }else {
+                    progressDialog.dismiss();
+                    CommonUtils.showShortToast(R.string.Failed_to_create_groups);
+                }
             }
 
             @Override
             public void onError(String error) {
-
+                progressDialog.dismiss();
+                CommonUtils.showShortToast(R.string.Failed_to_create_groups);
             }
         });
-        }else {
-            NetDao.creategroup2service(this, emGroup, avatarfile, new OkHttpUtils.OnCompleteListener<Result>() {
-                @Override
-                public void onSuccess(Result result) {
-                    afternetdaosuccess(result);
-                }
-
-                @Override
-                public void onError(String error) {
-
-                }
-            });
-        }
-    }
-
-    private void afternetdaosuccess(Result result) {
-        if (result!=null){
-           if (result.isRetMsg()){
-               Gson gson = new Gson();
-               GroupAvatar group = gson.fromJson(result.getRetData().toString(), GroupAvatar.class);
-               creategroupsuccess();
-           }
-        }
-
     }
 
 
