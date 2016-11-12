@@ -76,25 +76,34 @@ public class FriendProfileActivity extends BaseActivity {
             public void onSuccess(Result result) {
                 if (result!=null && result.isRetMsg()){
                     Gson gson = new Gson();
-                    user = gson.fromJson(result.getRetData().toString(), User.class);
+                    User u = gson.fromJson(result.getRetData().toString(), User.class);
                     if (user!=null){
                         setUserInfo();
                         if (isFriend){
                             SuperWeChatHelper.getInstance().saveappContact(user);
                         }
+                        user = u;
+                        setUserInfo();
                     }else {
-                        MFGT.finish(FriendProfileActivity.this);
+                        syncfail();
                     }
                 }else {
-                    MFGT.finish(FriendProfileActivity.this);
+                    syncfail();
                 }
             }
 
             @Override
             public void onError(String error) {
-                MFGT.finish(FriendProfileActivity.this);
+                syncfail();
             }
         });
+    }
+
+    private void syncfail() {
+        if (!isFriend){
+            MFGT.finish(FriendProfileActivity.this);
+            return;
+        }
     }
 
     private void setUserInfo() {
