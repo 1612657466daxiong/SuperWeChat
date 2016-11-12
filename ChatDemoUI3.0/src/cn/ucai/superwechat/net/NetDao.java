@@ -11,6 +11,7 @@ import java.io.File;
 import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.utils.I;
+import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.MD5;
 import cn.ucai.superwechat.utils.OkHttpUtils;
 
@@ -128,6 +129,7 @@ public class NetDao {
                 memberArr+=m+",";
             }
         }
+        L.e("添加群组的成员======"+memberArr);
         memberArr=memberArr.substring(0,memberArr.length()-1);
         OkHttpUtils<Result> utils = new OkHttpUtils<>(context);
         utils.setRequestUrl(I.REQUEST_ADD_GROUP_MEMBERS)

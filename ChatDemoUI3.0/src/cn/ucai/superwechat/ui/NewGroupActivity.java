@@ -231,8 +231,8 @@ public class NewGroupActivity extends BaseActivity {
         public void onSuccess(Result result) {
             if (result!=null){
                 if (result.isRetMsg()){
-                    Gson gson = new Gson();
-                    GroupAvatar group = gson.fromJson(result.getRetData().toString(), GroupAvatar.class);
+                   // Gson gson = new Gson();
+                   // GroupAvatar group = gson.fromJson(result.getRetData().toString(), GroupAvatar.class);
                     if (emGroup!=null&&emGroup.getMembers()!=null&&emGroup.getMembers().size()>1){
                         addGroupMembers();
                     }else {
