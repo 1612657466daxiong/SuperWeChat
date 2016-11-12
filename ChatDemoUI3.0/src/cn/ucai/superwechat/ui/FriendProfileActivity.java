@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.utils.EaseUserUtils;
 
@@ -16,7 +17,10 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.SuperWeChatHelper;
+import cn.ucai.superwechat.bean.Result;
+import cn.ucai.superwechat.net.NetDao;
 import cn.ucai.superwechat.utils.MFGT;
+import cn.ucai.superwechat.utils.OkHttpUtils;
 
 /**
  * Created by Administrator on 2016/11/8.
@@ -32,26 +36,65 @@ public class FriendProfileActivity extends BaseActivity {
     TextView mtvFriendNick;
     @InjectView(R.id.tv_friend_name)
     TextView mvFriendName;
-    User user;
+
     @InjectView(R.id.bt_friend_addcontact)
     Button mbtFriendAddcontact;
     @InjectView(R.id.bt_friend_sendmessage)
     Button mbtFriendSendmessage;
     @InjectView(R.id.bt_friend_shiping)
     Button mbtFriendShiping;
-
+    String username;
+    User user;
+    boolean isFriend=false;
 
     @Override
     protected void onCreate(Bundle arg0) {
         super.onCreate(arg0);
         setContentView(R.layout.activity_friend_pro);
         ButterKnife.inject(this);
-        user = (User) getIntent().getSerializableExtra("User");
-        if (user == null) {
+        username =  getIntent().getStringExtra("User");
+        if (username == null) {
             finish();
             return;
         }
         initView();
+        user=SuperWeChatHelper.getInstance().getappContactList().get(username);
+        if (user==null){
+            isFriend=false;
+
+        }else {
+            isFriend=true;
+            setUserInfo();
+        }
+        isFriend(isFriend);
+        syncUserInfo();
+    }
+
+    private void syncUserInfo() {
+        NetDao.searchuser(this, username, new OkHttpUtils.OnCompleteListener<Result>() {
+            @Override
+            public void onSuccess(Result result) {
+                if (result!=null && result.isRetMsg()){
+                    Gson gson = new Gson();
+                    user = gson.fromJson(result.getRetData().toString(), User.class);
+                    if (user!=null){
+                        setUserInfo();
+                        if (isFriend){
+                            SuperWeChatHelper.getInstance().saveappContact(user);
+                        }
+                    }else {
+                        MFGT.finish(FriendProfileActivity.this);
+                    }
+                }else {
+                    MFGT.finish(FriendProfileActivity.this);
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                MFGT.finish(FriendProfileActivity.this);
+            }
+        });
     }
 
     private void setUserInfo() {
@@ -64,13 +107,12 @@ public class FriendProfileActivity extends BaseActivity {
         mivBack.setVisibility(View.VISIBLE);
         mtvTitle.setVisibility(View.VISIBLE);
         mtvTitle.setText(getString(R.string.userinfo_txt_profile));
-        setUserInfo();
-        isFriend();
+
     }
 
 
-    public void isFriend() {
-        if (SuperWeChatHelper.getInstance().getappContactList().containsKey(user.getMUserName())) {
+    public void isFriend(boolean isfriend) {
+        if (isfriend) {
             mbtFriendSendmessage.setVisibility(View.VISIBLE);
             mbtFriendShiping.setVisibility(View.VISIBLE);
         } else {

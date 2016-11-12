@@ -100,9 +100,9 @@ public class AddContactActivity extends BaseActivity {
                         User user = gson.fromJson(result.getRetData().toString(), User.class);
                         L.e(TAG,"user---"+user.getMUserName());
                         if (user != null) {
-                            MFGT.gotofriendactivity(AddContactActivity.this, user);
+                            MFGT.gotofriendactivity(AddContactActivity.this, toAddUsername);
                         } else {
-                            CommonUtils.showShortToast(R.string.friend_not_find);
+                            CommonUtils.showShortToast(R.string.search_failed);
                         }
                     } else {
                         CommonUtils.showShortToast(R.string.search_failed);

@@ -65,9 +65,9 @@ public class MFGT {
     }
 
 
-    public static void gotofriendactivity(Activity context, User user) {
+    public static void gotofriendactivity(Activity context, String username) {
         Intent intent = new Intent(context, FriendProfileActivity.class);
-        intent.putExtra("User",user);
+        intent.putExtra("User",username);
         startActivity(context,intent);
     }
     public static void gotoNewFriendsMsgActivity(Activity context) {
