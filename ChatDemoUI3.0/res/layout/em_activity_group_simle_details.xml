@@ -5,33 +5,7 @@
     android:background="#eee"
     android:orientation="vertical" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/height_top_bar"
-        android:background="@color/top_bar_normal_bg"
-        android:gravity="center_vertical" >
-		
-        <include 
-            layout="@layout/ease_commom_back_btn"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/Group_chat_information"
-            android:textColor="#ffffff"
-            android:textSize="20sp" />
-
-        <ProgressBar
-            android:id="@+id/loading"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="5dp"
-            android:visibility="visible" />
-    </RelativeLayout>
+    <include layout="@layout/view_layout_title"></include>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -39,8 +13,13 @@
         android:layout_marginLeft="6dp"
         android:layout_marginRight="8dp"
         android:gravity="center_vertical" >
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
 
         <ImageView
+            android:layout_below="@id/loading"
             android:id="@+id/avatar"
             android:layout_width="55dp"
             android:layout_height="55dp"

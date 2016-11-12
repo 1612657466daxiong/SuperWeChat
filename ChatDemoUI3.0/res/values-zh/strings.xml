@@ -6,4 +6,5 @@
     <string name="search_failed">搜索联系人失败</string>
     <string name="wechat_left">微信</string>
     <string name="create_group_success">创建群组成功</string>
+    <string name="group_simple_detail">群聊资料</string>
 </resources>

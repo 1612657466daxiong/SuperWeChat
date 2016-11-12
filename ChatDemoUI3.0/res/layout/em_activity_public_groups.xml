@@ -29,8 +29,8 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="7dp" />
-        
-        <Button 
+
+        <Button
             android:id="@+id/btn_search"
             android:layout_width="55dp"
             android:layout_height="match_parent"
@@ -42,8 +42,9 @@
             android:textSize="16sp"
             android:visibility="invisible"
             />
-        
+
     </RelativeLayout>
+
 	
     <include android:id="@+id/search_bar_view" layout="@layout/em_search_bar_with_padding"/>
     <ListView
